@@ -4,6 +4,7 @@ from itertools import product
 from sage.combinat.permutation import Permutations
 import copy
 from check_dict_values_cyclic import *
+from standardizing import *
 
 
 class traintrack:
@@ -14,6 +15,7 @@ class traintrack:
         self.singularity_type = singularity_type
         self.infpoly = infpoly
         
+        
 
     ## graph as a Sagemath graph
     ## cusps as a list of objects of class cusp, only cusps made by two real edges allowed
@@ -22,10 +24,13 @@ class traintrack:
     ## singularity_type is a dictionary with three keys: "marked", "unmarked", and "boundary". Each value is a list of singularity type information
     ## for example, singularity_type["marked"] = [1,1,1,1] means there are four marked points each a one-pringed singularity
     ## infpoly is a dictionary with two keys: "marked" and "unmarked". The values are each a list. The value for "marked" is a 
-    ## list of tuples. Each tuple represents an infinitesimal polygon.
-    ## The first entry of the tuple is the singularity as it appears in singularity_type["marked"], and the second entry 
+    ## list of tuples. Each tuple represents an infinitesimal polygon;
+    ## the first entry of the tuple is the singularity as it appears in singularity_type["marked"], and the second entry 
     ## is a list of vertices in counterclockwise order making up the correcponding infinitesimal polygon for that singularity. 
     ## The key for "unmarked" is similar.
+
+    def deepcopy(self):
+        return copy.deepcopy(self)
 
     def in_poly(self,vertex): ## Checks if a vertex is in an infinitesimal polygon or not
         v = vertex
@@ -102,24 +107,28 @@ class traintrack:
 
             #Add an edge for far_vertex in the appropriate order
             inf_edge_index = original[far_vertex].index(inf_edge) #position of inf edge
-            originally = original[far_vertex]
-            new_ordering[far_vertex] = originally.insert(inf_edge_index + 1, tuple(sorted((right_vertex, far_vertex))))
+            originally = original[far_vertex].copy()
+            originally.insert(inf_edge_index + 1, tuple(sorted((right_vertex, far_vertex))))
+            new_ordering[far_vertex] = originally
 
             #Cusp vertex had the right edge removed
-            originally = original[cusp_vertex]
-            new_ordering[cusp_vertex] = originally.remove(fold_here_cusp.right)
+            originallyyyy = original[cusp_vertex].copy()
+            originallyyyy.remove(fold_here_cusp.right)
+            new_ordering[cusp_vertex] = originallyyyy
 
             #right vertex
             index = original[right_vertex].index(fold_here_cusp.right)
-            originally1 = original[right_vertex]
-            originally1.remove(fold_here_cusp.right)
-            originally1.insert(index,tuple(sorted((right_vertex, far_vertex))))
-            new_ordering[right_vertex] = originally1
+            originally11 = original[right_vertex].copy()
+            originally11.remove(fold_here_cusp.right)
+            originally11.insert(index,tuple(sorted((right_vertex, far_vertex))))
+            new_ordering[right_vertex] = originally11
 
             # #intermediate vertex
             # if intermediate_vertex != far_vertex:
             #     originally = original[intermediate_vertex]
             #     new_ordering[intermediate_vertex] = originally.remove(fold_here_cusp.left)
+
+            self.vert_orders = new_ordering
 
             #####################################
             #replace cusp we folded by a new one#
@@ -136,6 +145,7 @@ class traintrack:
                 inf_edge = order_intermediate_vertex[jIndex]
             else:
                 inf_edge = order_intermediate_vertex[position - 1]
+            #the following specifies the far_vertex
             if inf_edge[0] == right_vertex:
                 far_vertex = inf_edge[1]
             else:
@@ -197,7 +207,7 @@ class traintrack:
         return self
     
 
-    def is_isomorphic_to(self, another_track):
+    def is_isomorphic_to(self, another_track): #checks isotopy rel set of marked points
         H = another_track.graph
         if self.graph.is_isomorphic(H) == False:
             print("the underlying graphs are not the same")
@@ -415,6 +425,11 @@ def replace_order(old_order, replacement_vertices_map): #replaces every int in o
     return new_order
             
             
+
+class StandardTrainTrack(traintrack): #additional side_swapping_edges information is a list, from left right as embedded traintrack
+    def __init__(self, graph, cusps, vertex_edges_ordering, singularity_type, infpoly, side_swapping_edges):
+        super().__init__(graph, cusps, vertex_edges_ordering, singularity_type, infpoly)
+        self.side_swapping_edges = side_swapping_edges
 
 
 
