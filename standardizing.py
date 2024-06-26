@@ -120,23 +120,42 @@ def standardizing_braid(train, fold_here_cusp, direction):
         return None
     elif swing_left == True:
         offending_position = side_swappers_in_order.index(inf_edge)  # m - 1, if it's the first one form the left it's 0 
+        where_to_end = None
+        print(f"side-swapping edges to the right are {side_swappers_in_order[offending_position+1:]}")
         for side_swapper_to_the_right in side_swappers_in_order[offending_position+1:]:
             associated_infpoly = current_ordered_marked_polygons[side_swappers_in_order.index(side_swapper_to_the_right)]
             for vertex in associated_infpoly:
                 all_paths_far_vert_to_vertex = folded_train.graph.all_paths(far_vertex, vertex, report_edges=True)
+                print(f"{is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge)}")
                 if is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge) == True: 
-                    where_to_end = side_swappers_in_order.index(side_swapper_to_the_right)
-        return f"delta^(-1)_[{offending_position + 1},{where_to_end}]"
+                    where_to_end = side_swappers_in_order.index(side_swapper_to_the_right) - 1
+                    break
+            if where_to_end is not None:
+                break
+        if where_to_end is None:
+            where_to_end = len(side_swappers_in_order)
+                    
+        return f"delta^(-1)_[{where_to_end + 1},{offending_position + 1}]"
     
     elif swing_right == True:
-        offending_position = side_swappers_in_order.index(inf_edge)  # m - 1, if it's the first one form the left it's 0 
+        offending_position = side_swappers_in_order.index(inf_edge)
+        where_to_end = None
         for side_swapper_to_the_left in side_swappers_in_order[offending_position-1::-1]:
             associated_infpoly = current_ordered_marked_polygons[side_swappers_in_order.index(side_swapper_to_the_left)]
             for vertex in associated_infpoly:
                 all_paths_far_vert_to_vertex = folded_train.graph.all_paths(far_vertex, vertex, report_edges=True)
-                if is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge) == True: 
-                    where_to_end = side_swappers_in_order.index(side_swapper_to_the_left)
-        return f"delta_[{offending_position + 1},{where_to_end}]"
+                print(f"{is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge)}")
+                if is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge):
+                    where_to_end = side_swappers_in_order.index(side_swapper_to_the_left)+1
+                    break
+            if where_to_end is not None:
+                break
+        print(f"{where_to_end}")
+        if where_to_end is None:
+            # Handle the case where no match was found
+            where_to_end = 0
+
+        return f"delta_[{where_to_end + 1},{offending_position + 1}]"
                 
 
 
