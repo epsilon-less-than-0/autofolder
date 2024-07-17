@@ -7,6 +7,7 @@ import copy
 from check_dict_values_cyclic import *
 from is_traintrack_in_list import *
 from standardizing import *
+from convert_delta_to_perm import *
 
 
 ##################input the singularity,infpoly, and side-swapping edges info#####################
@@ -159,8 +160,8 @@ while we_added_new_traintracks == True:
                 list_of_tracks.append(T_ROL)
                 we_added_new_traintracks = True  # Set to True since a new track is added
                 AutomatonGraph.add_vertices([list_of_tracks.index(j),added_traintrack_index])
-                AutomatonGraph.add_path((list_of_tracks.index(j),added_traintrack_index))
-                AutomatonGraph.set_edge_label(list_of_tracks.index(j),added_traintrack_index, standardizing_braid(j,i,0))
+                AutomatonGraph.add_edge((list_of_tracks.index(j),added_traintrack_index,standardizing_braid(j,i,0)))
+                T_ROL.side_swapping_edges = convert_delta_to_perm(standardizing_braid(j,i,0)).action(T_ROL.side_swapping_edges)
                 cusp_dictionary[added_traintrack_index] = T_ROL.cusps
                 AutomatonDict[added_traintrack_index] = T_ROL
                 number_of_traintrack_counter += 1
@@ -168,8 +169,7 @@ while we_added_new_traintracks == True:
                 print("folded ROL is in the list")
                 existing_traintrack_index = is_traintrack_in_list(T_ROL, list_of_tracks)[1]
                 AutomatonGraph.add_vertices([existing_traintrack_index,existing_traintrack_index])
-                AutomatonGraph.add_path((list_of_tracks.index(j),existing_traintrack_index))
-                AutomatonGraph.set_edge_label(list_of_tracks.index(j),existing_traintrack_index, standardizing_braid(j,i,0))
+                AutomatonGraph.add_edge((list_of_tracks.index(j),existing_traintrack_index, standardizing_braid(j,i,0)))
 
 
             print("checking if folded LOR is in the list")
@@ -179,8 +179,8 @@ while we_added_new_traintracks == True:
                 list_of_tracks.append(T_LOR)
                 we_added_new_traintracks = True  # Set to True since a new track is added
                 AutomatonGraph.add_vertices([list_of_tracks.index(j),added_traintrack_index])
-                AutomatonGraph.add_path((list_of_tracks.index(j),added_traintrack_index))
-                AutomatonGraph.set_edge_label(list_of_tracks.index(j),added_traintrack_index, standardizing_braid(j,i,1))
+                AutomatonGraph.add_edge((list_of_tracks.index(j),added_traintrack_index,standardizing_braid(j,i,1)))
+                T_LOR.side_swapping_edges = convert_delta_to_perm(standardizing_braid(j,i,0)).action(T_LOR.side_swapping_edges)
                 cusp_dictionary[added_traintrack_index] = T_LOR.cusps
                 AutomatonDict[added_traintrack_index] = T_LOR
                 number_of_traintrack_counter += 1
@@ -189,8 +189,7 @@ while we_added_new_traintracks == True:
                 added_traintrack_index = len(list_of_tracks)
                 existing_traintrack_index = is_traintrack_in_list(T_LOR, list_of_tracks)[1]
                 AutomatonGraph.add_vertices([existing_traintrack_index,existing_traintrack_index])
-                AutomatonGraph.add_path((list_of_tracks.index(j),existing_traintrack_index))
-                AutomatonGraph.set_edge_label(list_of_tracks.index(j),existing_traintrack_index, standardizing_braid(j,i,1))
+                AutomatonGraph.add_edge((list_of_tracks.index(j),existing_traintrack_index,standardizing_braid(j,i,1)))
             index_of_cusp += 1
 
     print(f'i is {i} and j is {j}')

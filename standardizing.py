@@ -15,6 +15,7 @@ def standardizing_braid(train, fold_here_cusp, direction):
     cusp_index = train.cusps.index(fold_here_cusp)
 
     marked_polygons = train.infpoly["marked"]
+    n = len(marked_polygons)
     just_the_polygons = []
     for i in marked_polygons:
         just_the_polygons.append(i[1])
@@ -95,6 +96,7 @@ def standardizing_braid(train, fold_here_cusp, direction):
     index_of_added_edge = order_of_far_vertex.index(added_edge)
 
 
+    #the following part determines if we have almost standard traintrack that is swing left or swing right
     if index_of_inf_edge == len(order_of_far_vertex) - 1:
         inf_edge_is_at_the_end = True
         if index_of_added_edge == 0:
@@ -135,7 +137,13 @@ def standardizing_braid(train, fold_here_cusp, direction):
         if where_to_end is None:
             where_to_end = len(side_swappers_in_order)
                     
-        return f"delta^(-1)_[{where_to_end + 1},{offending_position + 1}]"
+        swing_left_standardizing = f"delta^(-1)_[{where_to_end + 1},{offending_position + 1}]"
+        m = offending_position + 1
+        special_braid = is_it_special(swing_left_standardizing , n,m)
+        if special_braid[0] == True:
+            return special_braid[1]
+        else:
+            return swing_left_standardizing
     
     elif swing_right == True:
         offending_position = side_swappers_in_order.index(inf_edge)
@@ -155,10 +163,25 @@ def standardizing_braid(train, fold_here_cusp, direction):
             # Handle the case where no match was found
             where_to_end = 0
 
-        return f"delta_[{where_to_end + 1},{offending_position + 1}]"
+        swing_right_standardizing = f"delta_[{where_to_end + 1},{offending_position + 1}]"
+        m = offending_position + 1
+        speciall_braid = is_it_special(swing_right_standardizing , n,m)
+        if speciall_braid[0] == True:
+            return speciall_braid[1]
+        else:
+            return swing_right_standardizing
                 
 
 
+
+def is_it_special(delta, n, m): #check if a standardizing braid is the special type that goes to the end which requires us to choose one
+    delta_one_em = f"delta_[1,{m}]"
+    delta_inv_m_n = f"delta^{-1}_[{m},{n}]"
+
+    if delta == delta_one_em or delta == delta_inv_m_n:
+        return [True, delta_one_em]
+    else:
+        return [False, None]
 
 
 def is_edge_among_paths(all_paths, edge): #all_paths is a list of paths, each path is a list of edges
