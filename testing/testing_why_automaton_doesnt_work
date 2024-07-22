@@ -32,4 +32,4 @@ side_swapping_copy = [(0,0),(1,1),(2,2),(3,3)]
 
 
 
-T_copy = StandardTrainTrack(G_copy,cusps_copy, order_copy,singularity_type_copy ,singularity_type_copy,side_swapping_copy)
+T_copy = StandardTrainTrack(G_copy,cusps_copy, order_copy,singularity_type_copy ,infpoly_copy,side_swapping_copy)

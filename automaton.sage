@@ -7,7 +7,8 @@ import copy
 from check_dict_values_cyclic import *
 from is_traintrack_in_list import *
 from standardizing import *
-from convert_delta_to_perm import *
+from convert_delta_to_perm import convert_delta_to_perm
+from realedges import realedges
 
 
 ##################input the singularity,infpoly, and side-swapping edges info#####################
@@ -117,6 +118,13 @@ for i in range(num_cusps):
 
 
 
+#The following labels the real edges of G (only real, no inf edges), first we extract the real edges, then label them
+ListofRealEdges = realedges(G,infpoly)
+
+RealEdgeLabel = 1
+for e in ListofRealEdges:
+    G.set_edge_label(e[0], e[1], str(RealEdgeLabel))
+    RealEdgeLabel = RealEdgeLabel + 1
 
 T = StandardTrainTrack(G,cusps_list, order, singularity_type, infpoly, side_swapping_edges)
 
