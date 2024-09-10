@@ -5,6 +5,7 @@ from itertools import product
 from sage.combinat.permutation import Permutations
 import copy
 from check_dict_values_cyclic import *
+from transitionmatrix_folding import transitionmatrix_folding
 
 def is_traintrack_in_list(train, ListOfTrains):
     for i in ListOfTrains:

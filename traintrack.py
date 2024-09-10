@@ -134,7 +134,7 @@ class traintrack:
             #replace cusp we folded by a new one#
             #####################################
             far_order = original[far_vertex].copy()
-            new_cusp_edge = far_order[inf_edge_index + 1]
+            new_cusp_edge = far_order[(inf_edge_index + 1)%len(far_order)]
             self.delete_cusp(fold_here_cusp)
             self.add_cusp(cusp(far_vertex,[new_cusp_edge,added_edge]))
 
@@ -203,7 +203,8 @@ class traintrack:
             new_cusp_edge = far_order[inf_edge_index - 1]
             self.delete_cusp(fold_here_cusp)
             self.add_cusp(cusp(far_vertex,[added_edge,new_cusp_edge]))
-
+            
+        G.allow_multiple_edges(False)
         return self
     
 
@@ -214,7 +215,7 @@ class traintrack:
             return False
         else:
             print("the underlying graphs are the same, checking permutations")
-            H_edges = EdgesView(another_track.graph,sort = True)
+            H_edges = EdgesView(another_track.graph,sort = True,labels = False)
             H_order = another_track.vert_orders
             singularity_type_marked = self.singularity_type["marked"] #singularity types of the marked singularities, as a list
             singularity_type_marked.sort() 
@@ -225,7 +226,7 @@ class traintrack:
 
 
             number_of_polygons = len(singularity_type_marked) + len(singularity_type_unmarked) #number of polygons
-            print("there are a total %d infinitesimal polygons" % number_of_polygons)
+            # print("there are a total %d infinitesimal polygons" % number_of_polygons)
             
             number_of_vertices = len(self.graph.vertices())
 
@@ -235,11 +236,11 @@ class traintrack:
                 dict_marked_count[i] = singularity_type_marked.count(i)
                 dict_marked_perms[i] = Permutations(singularity_type_marked.count(i))
 
-            if len(dict_marked_count) == 0:
-                print("there are no marked polygons")
-            else:
-                for q in dict_marked_count:
-                    print("there are %d %d-proned marked polygons" %(dict_marked_count[q], q))
+            # if len(dict_marked_count) == 0:
+            #     print("there are no marked polygons")
+            # else:
+            #     for q in dict_marked_count:
+            #         print("there are %d %d-proned marked polygons" %(dict_marked_count[q], q))
 
             dict_unmarked_count = {} #dictionary whose kyes are unmarked singularity types, values are the number of occurance of that singualrity type
             dict_unmarked_perms = {} #dictionary whose keys are unmarked singularity types, values are the sage permutations permuting those types
@@ -247,11 +248,11 @@ class traintrack:
                 dict_unmarked_count[i] = singularity_type_unmarked.count(i)
                 dict_unmarked_perms[i] = Permutations(singularity_type_unmarked.count(i))
 
-            if len(dict_unmarked_count) == 0:
-                print("there are no unmarked/interior polygons")
-            else:
-                for q in dict_unmarked_count:
-                    print("there are %d %d-proned unmarked polygons" %(dict_unmarked_count[q], q))
+            # if len(dict_unmarked_count) == 0:
+            #     print("there are no unmarked/interior polygons")
+            # else:
+            #     for q in dict_unmarked_count:
+            #         print("there are %d %d-proned unmarked polygons" %(dict_unmarked_count[q], q))
 
 
             # Get the keys and values from the dictionary dict_marked_perms
@@ -395,7 +396,7 @@ class traintrack:
                             #relabel the vertices of G according to which_vertex_is_sent_to_which
                             Griefgraph.relabel(which_vertex_is_sent_to_which)
                             #get the edges of the relabelled graph
-                            Grief_edges = EdgesView(Griefgraph, sort = True)
+                            Grief_edges = EdgesView(Griefgraph, sort = True, labels = False)
 
 
 

@@ -5,10 +5,13 @@ from itertools import product
 from sage.combinat.permutation import Permutations
 import copy
 from check_dict_values_cyclic import *
+from realedges import realedges
+from sage.graphs.connectivity import connected_components_subgraphs
+from sage.graphs.connectivity import connected_components
 
 
 
-#train must be standard traintrack
+#train must be standard traintrack, the traintrack is BEFORE folding
 def standardizing_braid(train, fold_here_cusp, direction):
     train_ROL = train.deepcopy()
     train_LOR = train.deepcopy()
@@ -16,13 +19,17 @@ def standardizing_braid(train, fold_here_cusp, direction):
 
     marked_polygons = train.infpoly["marked"]
     n = len(marked_polygons)
+    #just_the_polygons is a list of marked polygons as they appear in marked_polygons but without the singularity info
     just_the_polygons = []
     for i in marked_polygons:
         just_the_polygons.append(i[1])
 
     side_swappers_in_order = train.side_swapping_edges
 
-    current_ordered_marked_polygons = [] #a list of list (of vertices in cc order), in order from left to right of the marked polys in the current embedding
+    #current_ordered_marked_polygons
+    #is a list of list (of vertices in cc order), in order from left to right of the marked polys in the current embedding,
+    #specified by the ordering of side_swappers_in_order
+    current_ordered_marked_polygons = [] 
     p = 0
     while p < len(marked_polygons):
         for m in just_the_polygons:
@@ -61,6 +68,7 @@ def standardizing_braid(train, fold_here_cusp, direction):
         else:
             far_vertex = inf_edge[0]
         added_edge = tuple(sorted(list((right_vertex, far_vertex))))
+        other_vertex = right_vertex
 
     else: #if we are folding left over right
         position = order_intermediate_vertex.index(fold_here_cusp.right)
@@ -75,11 +83,17 @@ def standardizing_braid(train, fold_here_cusp, direction):
         else:
             far_vertex = inf_edge[0]
         added_edge = tuple(sorted(list((left_vertex, far_vertex))))
+        other_vertex = left_vertex
 
-    
+    # if folding does not go over a side-swapping edge, then standardizing braid is the empty braid
+    if inf_edge not in side_swappers_in_order:  
+        return None
+
+    #perform folding on the traintrack copies 
     train_ROL.fold(train_ROL.cusps[cusp_index],0)
     train_LOR.fold(train_LOR.cusps[cusp_index],1)
 
+    #pick the correct folded train based on direction
     if direction == 0:
         folded_train = train_ROL
     else:
@@ -94,6 +108,30 @@ def standardizing_braid(train, fold_here_cusp, direction):
     swing_left = False
     swing_right = False
     index_of_added_edge = order_of_far_vertex.index(added_edge)
+    real_edges_folded_track = realedges(folded_train.graph,folded_train.infpoly, labels = False)
+
+
+    #for folded Train track
+    marked_polygons_folded = folded_train.infpoly["marked"]
+    #just_the_polygons is a list of marked polygons as they appear in marked_polygons but without the singularity info
+    just_the_polygons_folded = []
+    for i in marked_polygons_folded:
+        just_the_polygons_folded.append(i[1])
+
+
+
+    #current_ordered_marked_polygons_folded
+    #is a list of list (of vertices in cc order), in order from left to right of the marked polys in the current embedding, after folding
+    #before standardizing, so side_swappers_in_order is same a before but the polygons might have changed
+    #specified by the ordering of side_swappers_in_order
+    current_ordered_marked_polygons_folded = [] 
+    p = 0
+    while p < len(marked_polygons_folded):
+        for m in just_the_polygons_folded:
+            if side_swappers_in_order[p][0] in m:
+                current_ordered_marked_polygons_folded.append(m)
+        p += 1 
+
 
 
     #the following part determines if we have almost standard traintrack that is swing left or swing right
@@ -115,62 +153,137 @@ def standardizing_braid(train, fold_here_cusp, direction):
              swing_right = True
         elif index_difference == 1:
              swing_left = True
-         
-
-
-    if inf_edge not in side_swappers_in_order:  # if folding does not go over a side-swapping edge, then standardizing braid is the empty braid
-        return None
-    elif swing_left == True:
-        offending_position = side_swappers_in_order.index(inf_edge)  # m - 1, if it's the first one form the left it's 0 
-        where_to_end = None
-        print(f"side-swapping edges to the right are {side_swappers_in_order[offending_position+1:]}")
-        for side_swapper_to_the_right in side_swappers_in_order[offending_position+1:]:
-            associated_infpoly = current_ordered_marked_polygons[side_swappers_in_order.index(side_swapper_to_the_right)]
-            for vertex in associated_infpoly:
-                all_paths_far_vert_to_vertex = folded_train.graph.all_paths(far_vertex, vertex, report_edges=True)
-                print(f"{is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge)}")
-                if is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge) == True: 
-                    where_to_end = side_swappers_in_order.index(side_swapper_to_the_right) - 1
-                    break
-            if where_to_end is not None:
-                break
-        if where_to_end is None:
-            where_to_end = len(side_swappers_in_order)
-                    
-        swing_left_standardizing = f"delta^(-1)_[{where_to_end + 1},{offending_position + 1}]"
-        m = offending_position + 1
-        special_braid = is_it_special(swing_left_standardizing , n,m)
-        if special_braid[0] == True:
-            return special_braid[1]
-        else:
-            return swing_left_standardizing
     
-    elif swing_right == True:
-        offending_position = side_swappers_in_order.index(inf_edge)
-        where_to_end = None
-        for side_swapper_to_the_left in side_swappers_in_order[offending_position-1::-1]:
-            associated_infpoly = current_ordered_marked_polygons[side_swappers_in_order.index(side_swapper_to_the_left)]
-            for vertex in associated_infpoly:
-                all_paths_far_vert_to_vertex = folded_train.graph.all_paths(far_vertex, vertex, report_edges=True)
-                print(f"{is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge)}")
-                if is_edge_among_paths(all_paths_far_vert_to_vertex, added_edge):
-                    where_to_end = side_swappers_in_order.index(side_swapper_to_the_left)+1
-                    break
-            if where_to_end is not None:
-                break
-        print(f"{where_to_end}")
-        if where_to_end is None:
-            # Handle the case where no match was found
-            where_to_end = 0
 
-        swing_right_standardizing = f"delta_[{where_to_end + 1},{offending_position + 1}]"
-        m = offending_position + 1
-        speciall_braid = is_it_special(swing_right_standardizing , n,m)
-        if speciall_braid[0] == True:
-            return speciall_braid[1]
+    offending_position = side_swappers_in_order.index(inf_edge)  # if it's the first one form the left it's 0 
+
+         
+    #the following part determines if we have wind right or wind left, that is if the offending edge ends to the right or left of the offending position
+    wind_left = False
+    wind_right = False
+
+    # left_vertex_of_side_swapping = 
+    # right_vertex_of_side_swapping = 
+
+    other_poly_position = None
+    list_of_all_the_vertices_in_inf_polygon = []
+    for pol in just_the_polygons_folded:
+        for v in pol:
+            list_of_all_the_vertices_in_inf_polygon.append(v)
+
+    if swing_left == True:
+        if (other_vertex not in list_of_all_the_vertices_in_inf_polygon):
+            wind_left = False
+            wind_right = True
         else:
-            return swing_right_standardizing
-                
+            for poly in current_ordered_marked_polygons_folded:
+                if other_vertex in poly:
+                    other_poly_position = current_ordered_marked_polygons.index(poly)
+            if other_poly_position < offending_position:
+                wind_left = True
+                wind_right = False
+            else:
+                wind_left = False
+                wind_right = True
+    
+    if swing_right == True:
+        if (other_vertex not in list_of_all_the_vertices_in_inf_polygon):
+            wind_left = True
+            wind_right = False
+        else:
+            for poly in current_ordered_marked_polygons_folded:
+                if other_vertex in poly:
+                    other_poly_position = current_ordered_marked_polygons.index(poly)
+            if other_poly_position < offending_position:
+                wind_left = True
+                wind_right = False
+            else:
+                wind_left = False
+                wind_right = True
+
+
+    standardizing = None
+
+    if swing_left == True and wind_right == True:
+        where_to_end = None
+        offending_polygon = current_ordered_marked_polygons_folded[offending_position]
+        polygons_to_the_right =  current_ordered_marked_polygons_folded[offending_position+1:] 
+        graph_without_added_edge = folded_train.graph.copy()
+        graph_without_added_edge.delete_edge(added_edge)
+        connected_comps = connected_components(graph_without_added_edge)
+        component_with_far_vertex = None
+        for component in connected_comps:
+            if (far_vertex in component) == True:
+                component_with_far_vertex = component
+                break
+
+        where_to_end = offending_position
+        for polygon in polygons_to_the_right:
+            if have_common_element(polygon,component_with_far_vertex) == True:
+                where_to_end = where_to_end + 1
+            else:
+                break
+
+        standardizing = f"delta^(-1)_[{offending_position + 1},{where_to_end + 1}]"
+    
+    if swing_left == True and wind_left == True:
+        where_to_end = None
+        offending_polygon = current_ordered_marked_polygons_folded[offending_position]
+        ppolygon = offending_polygon
+        for side_swapper_to_the_left in side_swappers_in_order[offending_position - 1::-1]:
+            associated_infpoly = current_ordered_marked_polygons_folded[side_swappers_in_order.index(side_swapper_to_the_left)]
+            if are_infpolys_connected(ppolygon,associated_infpoly,real_edges_folded_track) == False:
+                break
+            else:
+                ppolygon = associated_infpoly
+                where_to_end = side_swappers_in_order.index(side_swapper_to_the_left)
+
+        standardizing = f"delta_[{where_to_end + 1},{offending_position + 1}]"
+        
+    
+    if swing_right == True and wind_left == True:
+        where_to_end = None
+        offending_polygon = current_ordered_marked_polygons_folded[offending_position]
+        polygons_to_the_left =  current_ordered_marked_polygons_folded[:offending_position] 
+        graph_without_added_edge = folded_train.graph.copy()
+        graph_without_added_edge.delete_edge(added_edge)
+        connected_comp = connected_components(graph_without_added_edge)
+        component_with_far_vertex = None
+        for component in connected_comp:
+            if (far_vertex in component) == True:
+                component_with_far_vertex = component
+                break
+        
+        polygons_to_the_left_reversed = polygons_to_the_left[::-1]
+        where_to_end = offending_position
+        for polygon in polygons_to_the_left_reversed:
+            if have_common_element(polygon,component) == True:
+                where_to_end = where_to_end - 1
+            else:
+                break
+
+
+        standardizing = f"delta_[{where_to_end + 1},{offending_position + 1}]"
+
+    if swing_right == True and wind_right == True:
+        where_to_end = None
+        offending_polygon = current_ordered_marked_polygons_folded[offending_position]
+        ppolygon = offending_polygon
+        for side_swapper_to_the_right in side_swappers_in_order[offending_position+1:]:
+            associated_infpoly = current_ordered_marked_polygons_folded[side_swappers_in_order.index(side_swapper_to_the_right)]
+            if are_infpolys_connected(ppolygon,associated_infpoly,real_edges_folded_track) == False:
+                break
+            else:
+                ppolygon = associated_infpoly
+                where_to_end = side_swappers_in_order.index(side_swapper_to_the_right)
+
+        standardizing = f"delta^(-1)_[{offending_position + 1},{where_to_end + 1}]"
+
+    m = offending_position  + 1
+    if is_it_special(standardizing, n, m)[0] == True:
+        return is_it_special(standardizing, n, m)[1]
+    else:
+        return standardizing
 
 
 
@@ -190,7 +303,17 @@ def is_edge_among_paths(all_paths, edge): #all_paths is a list of paths, each pa
         if tuple(sorted(list(edge))) in sorted_path:
             return True
     return False
+
+
+def are_infpolys_connected(inf1,inf2, realedges):
+    for real in realedges:
+        if real[0] in inf1 and real[1] in inf2:
+            return True
+        if real[0] in inf2 and real[1] in inf1:
+            return True
+    return False
          
-         
+def have_common_element(list1, list2):
+    return bool(set(list1) & set(list2))
 
             

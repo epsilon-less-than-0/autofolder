@@ -1,9 +1,13 @@
-def realedges(G, infpoly): #input is graph and infinitesimal polygon info, returns list of real edges
+def realedges(G, infpoly, labels = True): #input is graph and infinitesimal polygon info, returns list of real edges
     realedges = []
     marked = infpoly["marked"]
     unmarked = infpoly["unmarked"]
     allpolys = marked + unmarked
-    alledges = G.edges(sort=True)
+    if labels == True:
+        alledges = G.edges(sort=True)
+    else:
+        alledges = G.edges(sort=True, labels = False)
+
     for e in alledges:
         firstvertex = e[0]
         secondvertex = e[1]
@@ -16,3 +20,4 @@ def realedges(G, infpoly): #input is graph and infinitesimal polygon info, retur
         if is_real_edge:
             realedges.append(e)
     return realedges
+

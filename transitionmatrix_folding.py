@@ -9,14 +9,25 @@ from is_traintrack_in_list import *
 from standardizing import *
 from convert_delta_to_perm import convert_delta_to_perm
 from realedges import realedges
+from sage.matrix.constructor import matrix
 
 
 
+#this only outputs transition matrix if folded_track and ending_track ARE ISOMORPHIC(in my sense)
+#BOTH TRACKS HAVE TO HAVE REAL EDGES LABELLED
+#starting_track is folded
+#ending_track is existing track in list
+#pre_folded_track is pre folded track
+#fold_here_cusp is a cusp of PRE_FOLDED_TRACK
 
-def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direction): #
+
+def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direction, pre_folded_track): 
     H = ending_track.graph
+    # cusp_index = starting_track.cusps.index(fold_here_cusp)
     ListofRealEdges_starting = realedges(starting_track.graph,starting_track.infpoly)
     ListofRealEdges_ending = realedges(ending_track.graph,ending_track.infpoly)
+    
+
         
     if starting_track.graph.is_isomorphic(H) == False:
         print("the underlying graphs are not the same")
@@ -24,7 +35,7 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
         return [False,None]
     else:
         print("the underlying graphs are the same, checking permutations")
-        H_edges = EdgesView(ending_track.graph,sort = True)
+        H_edges = EdgesView(ending_track.graph,sort = True, labels = False)
         H_order = ending_track.vert_orders
         singularity_type_marked = starting_track.singularity_type["marked"] #singularity types of the marked singularities, as a list
         singularity_type_marked.sort() 
@@ -205,11 +216,14 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
                         #relabel the vertices of G according to which_vertex_is_sent_to_which
                         Griefgraph.relabel(which_vertex_is_sent_to_which)
                         #get the edges of the relabelled graph
-                        Grief_edges = EdgesView(Griefgraph, sort = True)
+                        Grief_edges = EdgesView(Griefgraph, sort = True, labels = False)
 
 
 
                         Grief_order = replace_order(Grief_order, which_vertex_is_sent_to_which)
+
+                        #which_vertex_is_sent_to_which is a dictionary whose keys are the vertices of starting_tracl (folded track), and keys are where 
+                        #each of those vertices is sent to in ending_track (existing track in list)
 
                         if Grief_edges == H_edges and are_dict_values_same_up_to_cyclic_order(Grief_order,H_order) == True:
                             print("the traintracks are isomorphic, the permutation of vertices is the following")
@@ -218,7 +232,7 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
 
                             for e in ListofRealEdges_starting:
                                 e_is_send_to = tuple(sorted(list((which_vertex_is_sent_to_which[e[0]],which_vertex_is_sent_to_which[e[1]]))))
-                                realedge_label_transition_dictionary[int(e[2])] = int(H.edge_label(e_is_send_to[0],e_is_send_to[1]))
+                                realedge_label_transition_dictionary[int(e[2])] = int(ending_track.graph.edge_label(e_is_send_to[0],e_is_send_to[1]))
 
                             realedge_label_transition_dictionary = dict(sorted(realedge_label_transition_dictionary.items()))
                             transitionmatrix_list_of_rows = create_zero_matrix(len(ListofRealEdges_starting))
@@ -227,15 +241,18 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
                                 transitionmatrix_list_of_rows[row - 1][column - 1] = 1
                             
                             if direction == 0: #if it's ROL
-                                column_to_add = int(H.edge_label(tuple(sorted(list(fold_here_cusp.right)))))
-                                row_to_add_pre_permute = int(H.edge_label(tuple(sorted(list(fold_here_cusp.left)))))
+                                column_to_add = int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.right)))[0],tuple(sorted(list(fold_here_cusp.right)))[1]))
+                                print(f"column to add is {column_to_add}")
+                                row_to_add_pre_permute = int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.left)))[0],tuple(sorted(list(fold_here_cusp.left)))[1]))
+                                print(f"row to add pre permute is {row_to_add_pre_permute}")
                                 row_to_add = realedge_label_transition_dictionary[row_to_add_pre_permute]
-                            else:
-                                column_to_add = int(H.edge_label(tuple(sorted(list(fold_here_cusp.left)))))
-                                row_to_add_pre_permute = int(H.edge_label(tuple(sorted(list(fold_here_cusp.right)))))
+                                print(f"row to add is {row_to_add}")
+                            else: #if it's LOR
+                                column_to_add = int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.left)))[0],tuple(sorted(list(fold_here_cusp.left)))[1]))
+                                row_to_add_pre_permute = int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.right)))[0],tuple(sorted(list(fold_here_cusp.right)))[1]))
                                 row_to_add = realedge_label_transition_dictionary[row_to_add_pre_permute]
 
-                            transitionmatrix_list_of_rows[row_to_add - 1][column_to_add - 1] = 1
+                            transitionmatrix_list_of_rows[row_to_add - 1][column_to_add - 1] = transitionmatrix_list_of_rows[row_to_add - 1][column_to_add - 1] + 1
                             
                             transition_matrix = matrix(transitionmatrix_list_of_rows)
 
