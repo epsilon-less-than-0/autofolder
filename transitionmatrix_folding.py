@@ -17,7 +17,7 @@ from sage.matrix.constructor import matrix
 #BOTH TRACKS HAVE TO HAVE REAL EDGES LABELLED
 #starting_track is folded
 #ending_track is existing track in list
-#pre_folded_track is pre folded track
+#pre_folded_track is the traintrack before folding was done
 #fold_here_cusp is a cusp of PRE_FOLDED_TRACK
 
 
@@ -30,11 +30,11 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
 
         
     if starting_track.graph.is_isomorphic(H) == False:
-        print("the underlying graphs are not the same")
+        # print("the underlying graphs are not the same")
         
         return [False,None]
     else:
-        print("the underlying graphs are the same, checking permutations")
+        # print("the underlying graphs are the same, checking permutations")
         H_edges = EdgesView(ending_track.graph,sort = True, labels = False)
         H_order = ending_track.vert_orders
         singularity_type_marked = starting_track.singularity_type["marked"] #singularity types of the marked singularities, as a list
@@ -46,7 +46,7 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
 
 
         number_of_polygons = len(singularity_type_marked) + len(singularity_type_unmarked) #number of polygons
-        print("there are a total %d infinitesimal polygons" % number_of_polygons)
+        # print("there are a total %d infinitesimal polygons" % number_of_polygons)
         
         number_of_vertices = len(starting_track.graph.vertices())
 
@@ -56,11 +56,11 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
             dict_marked_count[i] = singularity_type_marked.count(i)
             dict_marked_perms[i] = Permutations(singularity_type_marked.count(i))
 
-        if len(dict_marked_count) == 0:
-            print("there are no marked polygons")
-        else:
-            for q in dict_marked_count:
-                print("there are %d %d-proned marked polygons" %(dict_marked_count[q], q))
+        # if len(dict_marked_count) == 0:
+        #     print("there are no marked polygons")
+        # else:
+        #     for q in dict_marked_count:
+        #         print("there are %d %d-proned marked polygons" %(dict_marked_count[q], q))
 
         dict_unmarked_count = {} #dictionary whose kyes are unmarked singularity types, values are the number of occurance of that singualrity type
         dict_unmarked_perms = {} #dictionary whose keys are unmarked singularity types, values are the sage permutations permuting those types
@@ -68,11 +68,11 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
             dict_unmarked_count[i] = singularity_type_unmarked.count(i)
             dict_unmarked_perms[i] = Permutations(singularity_type_unmarked.count(i))
 
-        if len(dict_unmarked_count) == 0:
-            print("there are no unmarked/interior polygons")
-        else:
-            for q in dict_unmarked_count:
-                print("there are %d %d-proned unmarked polygons" %(dict_unmarked_count[q], q))
+        # if len(dict_unmarked_count) == 0:
+        #     print("there are no unmarked/interior polygons")
+        # else:
+        #     for q in dict_unmarked_count:
+        #         print("there are %d %d-proned unmarked polygons" %(dict_unmarked_count[q], q))
 
 
         # Get the keys and values from the dictionary dict_marked_perms
@@ -226,8 +226,8 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
                         #each of those vertices is sent to in ending_track (existing track in list)
 
                         if Grief_edges == H_edges and are_dict_values_same_up_to_cyclic_order(Grief_order,H_order) == True:
-                            print("the traintracks are isomorphic, the permutation of vertices is the following")
-                            print(which_vertex_is_sent_to_which)
+                            # print("the traintracks are isomorphic, the permutation of vertices is the following")
+                            # print(which_vertex_is_sent_to_which)
                             realedge_label_transition_dictionary = {}
 
                             for e in ListofRealEdges_starting:

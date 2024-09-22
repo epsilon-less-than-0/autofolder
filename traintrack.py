@@ -5,7 +5,8 @@ from sage.combinat.permutation import Permutations
 import copy
 from check_dict_values_cyclic import *
 from standardizing import *
-
+from realedges import realedges
+from adjacent_cusps_detector import *
 
 class traintrack:
     def __init__(self, graph, cusps, vertex_edges_ordering, singularity_type, infpoly):
@@ -55,27 +56,22 @@ class traintrack:
 
     def fold(self,fold_here_cusp,direction): #cusp is a cusp object, direction is 0 if right-over-left, 1 if left-over-right
         G = self.graph
-        original_graph = G.copy()
+        original_graph = self.graph.copy()
+        original_track = self.deepcopy()
         original_order = self.vert_orders.copy()
         G.allow_multiple_edges(True)
         cusp_vertex = fold_here_cusp.vertex
         left_vertex = fold_here_cusp.left_vertex()
         right_vertex = fold_here_cusp.right_vertex()
         vertices = G.vertices(sort = True)
-        star_vertex = len(vertices)
-        G.add_vertices([star_vertex])
-        G.add_edges([(star_vertex, left_vertex), (star_vertex,right_vertex), (star_vertex, cusp_vertex)])
-        G.delete_edges([(cusp_vertex,left_vertex),(cusp_vertex,right_vertex)])
-        if direction == 0: ## right over left
-            G.contract_edge(left_vertex,star_vertex) #contract star_vertex into left_vertex
-            intermediate_vertex = left_vertex
-        else: ##left over right
-            G.contract_edge(right_vertex,star_vertex) #contract star_vertex into right_vertex
-            intermediate_vertex = right_vertex
-
-        order_intermediate_vertex = original_order[intermediate_vertex] #the ordering of the edges incedent to the intermediate vertex
-
+        cusp_index = self.cusps.index(fold_here_cusp)
+        
+        #set of real edges of the original track
+        real_edges_of_original_track = realedges(original_graph,original_track.infpoly,labels=False)
+        
         if direction == 0: #if we are folding right over left
+            intermediate_vertex = left_vertex
+            order_intermediate_vertex = original_order[intermediate_vertex] #the ordering of the edges incedent to the intermediate vertex
             position = order_intermediate_vertex.index(fold_here_cusp.left) #this is the order of the real edge right before the inf edge
             if position == len(order_intermediate_vertex) - 1:
                 jIndex = (position + 1) % len(order_intermediate_vertex)
@@ -83,12 +79,26 @@ class traintrack:
             else:
                 inf_edge = order_intermediate_vertex[position + 1] #the inf edge is right after the real edge at position
 
+            #this checks to make sure infedge is actually an infinitesimal edge, otherwise we cannot fold
+            if inf_edge in real_edges_of_original_track:
+                print("folding cannot be done, infedge is in fact a real edge")
+                return self , False
+
+            #if foling is legitimate, we can actually perform the alterations on G = self.graph
+            star_vertex = len(vertices)
+            G.add_vertices([star_vertex])
+            G.add_edges([(star_vertex, left_vertex), (star_vertex,right_vertex), (star_vertex, cusp_vertex)])
+            G.delete_edges([(cusp_vertex,left_vertex),(cusp_vertex,right_vertex)])
+            G.contract_edge(left_vertex,star_vertex) #contract star_vertex into left_vertex
+
+
             #This specifies the far vertex
             if inf_edge[0] == left_vertex:
                 far_vertex = inf_edge[1]
             else:
                 far_vertex = inf_edge[0]
             
+
             #Now the third stage, we fold over the inf edge
             G.add_edge(right_vertex, far_vertex)
             added_edge = tuple(sorted(list((right_vertex, far_vertex))))
@@ -133,18 +143,80 @@ class traintrack:
             #####################################
             #replace cusp we folded by a new one#
             #####################################
-            far_order = original[far_vertex].copy()
-            new_cusp_edge = far_order[(inf_edge_index + 1)%len(far_order)]
-            self.delete_cusp(fold_here_cusp)
-            self.add_cusp(cusp(far_vertex,[new_cusp_edge,added_edge]))
+
+
+            #check adjacent cusp
+            for c in self.cusps:
+                if c.left == fold_here_cusp.right: #there is an adjacent cusp on the right
+                    if c.vertex == fold_here_cusp.vertex: #if they share a vertex , so facing the same direction
+                        new_left = tuple(fold_here_cusp.left)
+                        new_right = tuple(c.right)
+                        new_adjacent_cusp = cusp(c.vertex,(new_left,new_right))
+                        self.cusps[self.cusps.index(c)] = new_adjacent_cusp
+                        #now proceed with usual cusp update:
+                        far_order = new_ordering[far_vertex]
+                        index_of_added_edge = far_order.index(added_edge)
+                        new_cusp_right_edge = added_edge
+                        new_cusp_left_edge = far_order[(index_of_added_edge + 1)%len(far_order)]
+                        new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
+                        self.cusps[cusp_index] = new_cusp
+                    else: #if they don't share a vertex , so facing different direction
+                        new_left = tuple(added_edge)
+                        new_right = tuple(c.right)
+                        new_adjacent_cusp = cusp(c.vertex, (new_left,new_right))
+                        self.cusps[self.cusps.index(c)] = new_adjacent_cusp
+                        #now proceed with usual cusp update:
+                        far_order = new_ordering[far_vertex]
+                        index_of_added_edge = far_order.index(added_edge)
+                        new_cusp_right_edge = added_edge
+                        new_cusp_left_edge = far_order[(index_of_added_edge + 1)%len(far_order)]
+                        new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
+                        self.cusps[cusp_index] = new_cusp
+                elif (c != fold_here_cusp) and (c.right == fold_here_cusp.right):#there is an adjacent cusp sharing edge with same parity
+                    #can only mean they face different directions
+                    new_left = tuple(c.left)
+                    new_right = tuple(added_edge)
+                    new_adjacent_cusp = cusp(c.vertex, (new_left,new_right))
+                    self.cusps[self.cusps.index(c)] = new_adjacent_cusp
+                     #now proceed with usual cusp update:
+                    far_order = new_ordering[far_vertex]
+                    index_of_added_edge = far_order.index(added_edge)
+                    new_cusp_right_edge = added_edge
+                    new_cusp_left_edge = far_order[(index_of_added_edge + 1)%len(far_order)]
+                    new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
+                    self.cusps[cusp_index] = new_cusp
+                else:
+                    far_order = new_ordering[far_vertex]
+                    index_of_added_edge = far_order.index(added_edge)
+                    new_cusp_right_edge = added_edge
+                    new_cusp_left_edge = far_order[(index_of_added_edge + 1)%len(far_order)]
+                    new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
+                    self.cusps[cusp_index] = new_cusp
+
 
         else: #if we are folding left over right
+            intermediate_vertex = right_vertex
+            order_intermediate_vertex = original_order[intermediate_vertex] #the ordering of the edges incedent to the intermediate vertex
             position = order_intermediate_vertex.index(fold_here_cusp.right)
             if position == 0:
                 jIndex = (position - 1) % len(order_intermediate_vertex)
                 inf_edge = order_intermediate_vertex[jIndex]
             else:
                 inf_edge = order_intermediate_vertex[position - 1]
+
+            #this checks to make sure infedge is actually an infinitesimal edge, otherwise we cannot fold
+            if inf_edge in real_edges_of_original_track:
+                print("folding cannot be done, infedge is in fact a real edge")
+                return self , False
+                
+            #if foling is legitimate, we can actually perform the alterations on G = self.graph
+            star_vertex = len(vertices)
+            G.add_vertices([star_vertex])
+            G.add_edges([(star_vertex, left_vertex), (star_vertex,right_vertex), (star_vertex, cusp_vertex)])
+            G.delete_edges([(cusp_vertex,left_vertex),(cusp_vertex,right_vertex)])
+            G.contract_edge(right_vertex,star_vertex) #contract star_vertex into right_vertex
+
+
             #the following specifies the far_vertex
             if inf_edge[0] == right_vertex:
                 far_vertex = inf_edge[1]
@@ -152,6 +224,7 @@ class traintrack:
                 far_vertex = inf_edge[0]
             G.add_edge(left_vertex, far_vertex)
             added_edge = tuple(sorted(list((left_vertex, far_vertex))))
+            print(f"added edge is {added_edge}")
             G.delete_edge(left_vertex,intermediate_vertex)
             #Now G has been replaced by a folded graph
 
@@ -199,10 +272,53 @@ class traintrack:
             #####################################
             #replace cusp we folded by a new one#
             #####################################
-            far_order = original[far_vertex].copy()
-            new_cusp_edge = far_order[inf_edge_index - 1]
-            self.delete_cusp(fold_here_cusp)
-            self.add_cusp(cusp(far_vertex,[added_edge,new_cusp_edge]))
+            for c in self.cusps:
+                if c.right == fold_here_cusp.left: #there is an adjacent cusp sharing edge with different parity
+                    if c.vertex == fold_here_cusp.vertex: #if they share a vertex , so facing the same direction
+                        new_left= tuple(c.left)
+                        new_right = tuple(fold_here_cusp.right)
+                        new_adjacent_cusp = cusp(c.vertex,(new_left,new_right))
+                        self.cusps[self.cusps.index(c)] = new_adjacent_cusp
+                        #now proceed with usual cusp update:
+                        far_order = new_ordering[far_vertex]
+                        index_of_added_edge = far_order.index(added_edge)
+                        new_cusp_left_edge = added_edge
+                        new_cusp_right_edge = far_order[index_of_added_edge - 1]
+                        new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
+                        self.cusps[cusp_index] = new_cusp
+                    else: #if they don't share a vertex , so facing different direction
+                        new_left = tuple(c.left)
+                        new_right = tuple(added_edge)
+                        new_adjacent_cusp = cusp(c.vertex , (new_left,new_right))
+                        self.cusps[self.cusps.index(c)] = new_adjacent_cusp
+                        #now proceed with usual cusp update:
+                        far_order = new_ordering[far_vertex]
+                        index_of_added_edge = far_order.index(added_edge)
+                        new_cusp_left_edge = added_edge
+                        new_cusp_right_edge = far_order[index_of_added_edge - 1]
+                        new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
+                        self.cusps[cusp_index] = new_cusp
+                elif (c != fold_here_cusp) and (c.left == fold_here_cusp.left): #there is an adjacent cusp sharing edge with same parity
+                    #can only mean they face different directions
+                    new_left = tuple(added_edge)
+                    new_right = tuple(c.right)
+                    new_adjacent_cusp = cusp(c.vertex, (new_left,new_right))
+                    self.cusps[self.cusps.index(c)] = new_adjacent_cusp
+                    #now proceed with usual cusp update:
+                    far_order = new_ordering[far_vertex]
+                    index_of_added_edge = far_order.index(added_edge)
+                    new_cusp_left_edge = added_edge
+                    new_cusp_right_edge = far_order[index_of_added_edge - 1]
+                    new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
+                    self.cusps[cusp_index] = new_cusp
+                else:
+                    far_order = new_ordering[far_vertex]
+                    index_of_added_edge = far_order.index(added_edge)
+                    new_cusp_left_edge = added_edge
+                    new_cusp_right_edge = far_order[index_of_added_edge - 1]
+                    new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
+                    self.cusps[cusp_index] = new_cusp
+
             
         G.allow_multiple_edges(False)
         return self

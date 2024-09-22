@@ -2,10 +2,11 @@ class cusp:
     def __init__(self, vertex, edges):
         self.vertex = vertex
         self.edges = edges
-        self.left = tuple(sorted(list(edges[0])))
-        self.right = tuple(sorted(list(edges[1])))
+        self.left = tuple(sorted(list(edges[0]))) #LEFT EDGE at zero position
+        self.right = tuple(sorted(list(edges[1]))) #RIGHT EDGE at one position
 ## vertex is in the form of a single int 
 ## edges in the form of a tuple of two tuples, each representing an edge as a tuple of two vertices, TUPLE MUST BE ORDERED. First left edge then right edge
+## LEFT EDGE FIRST THEN RIGHT EDGE
     def __str__(self):
         return f"cusp at vertex {self.vertex} with edges({self.edges})"
     

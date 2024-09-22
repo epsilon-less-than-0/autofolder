@@ -8,6 +8,7 @@ from check_dict_values_cyclic import *
 from realedges import realedges
 from sage.graphs.connectivity import connected_components_subgraphs
 from sage.graphs.connectivity import connected_components
+from crab_left_right_from_unmarked_polygon import crab_left_right_from_unmarked_polygon
 
 
 
@@ -156,6 +157,18 @@ def standardizing_braid(train, fold_here_cusp, direction):
     
 
     offending_position = side_swappers_in_order.index(inf_edge)  # if it's the first one form the left it's 0 
+    all_polygons_to_the_right = current_ordered_marked_polygons_folded[offending_position+1:]
+    all_polygons_to_the_left_reversed =  current_ordered_marked_polygons_folded[offending_position - 1::-1]
+
+    vertices_of_polygons_to_the_right = []
+    for h in all_polygons_to_the_right:
+        for q in h:
+            vertices_of_polygons_to_the_right.append(q)
+
+    vertices_of_polygons_to_the_left = []
+    for h in all_polygons_to_the_left_reversed:
+        for q in h:
+            vertices_of_polygons_to_the_left.append(q)
 
          
     #the following part determines if we have wind right or wind left, that is if the offending edge ends to the right or left of the offending position
@@ -165,20 +178,83 @@ def standardizing_braid(train, fold_here_cusp, direction):
     # left_vertex_of_side_swapping = 
     # right_vertex_of_side_swapping = 
 
-    other_poly_position = None
-    list_of_all_the_vertices_in_inf_polygon = []
+    other_poly_position = None #initialize other poly position, this will only be defined if ther vertex is at a marked polygon
+    other_polygon = None #initialize other polygon that other vertex is attached to (could be marked or unmarked)
+    list_of_all_the_vertices_in_inf_polygon_folded = []
     for pol in just_the_polygons_folded:
         for v in pol:
-            list_of_all_the_vertices_in_inf_polygon.append(v)
+            list_of_all_the_vertices_in_inf_polygon_folded.append(v)
+
+    just_the_marked_polygons_folded = []
+    for p in folded_train.infpoly["marked"]:
+        just_the_marked_polygons_folded.append(p[1])
+
+    list_of_all_the_vertices_in_marked_polygon_folded = []
+    for r in just_the_marked_polygons_folded:
+        for ve in r:
+            list_of_all_the_vertices_in_marked_polygon_folded.append(ve)
+
+    other_vertex_is_marked_poly = False
+    for polygon in just_the_marked_polygons_folded:
+        if other_vertex in polygon:
+            other_polygon = polygon
+            other_vertex_is_marked_poly = True
+    
+    just_the_unmarked_polygons_folded = []
+    for p in folded_train.infpoly["unmarked"]:
+        just_the_unmarked_polygons_folded.append(p[1])
+
+    list_of_all_the_vertices_in_unmarked_polygon_folded = []
+    for r in just_the_unmarked_polygons_folded:
+        for ve in r:
+            list_of_all_the_vertices_in_unmarked_polygon_folded.append(ve)
+
+    other_vertex_is_unmarked_poly = False
+    for polygon in just_the_unmarked_polygons_folded:
+        if other_vertex in polygon:
+            other_polygon = polygon
+            other_vertex_is_unmarked_poly = True
+
+
+    graph_without_added_edge= folded_train.graph.copy()
+    graph_without_added_edge.delete_edge(added_edge)
+    connected_comp = connected_components(graph_without_added_edge)
+    component_with_far_vertex = None
+    component_without_far_vertex = None
+    for component in connected_comp:
+        if (far_vertex in component) == True:
+            component_with_far_vertex = component
+            break
+    for c in connected_comp:
+        if c != component_with_far_vertex:
+            component_without_far_vertex = c
+
+    crab_right = False
+    crab_left = False
 
     if swing_left == True:
-        if (other_vertex not in list_of_all_the_vertices_in_inf_polygon):
-            wind_left = False
-            wind_right = True
-        else:
-            for poly in current_ordered_marked_polygons_folded:
-                if other_vertex in poly:
-                    other_poly_position = current_ordered_marked_polygons.index(poly)
+        #recall: other vertex is the vertex of added_edge that is NOT the one at the offending position
+        #so this if statement check if that other vertex is at an unmarked polygon
+        if other_vertex_is_unmarked_poly == True: #if other vertex is at an unmarked polygon 
+            for verf in component_without_far_vertex:
+                if verf in vertices_of_polygons_to_the_right:
+                    crab_right = True
+                if verf in vertices_of_polygons_to_the_left:
+                    crab_left = True
+            
+
+            if ((crab_left == True) and (crab_right == False)):
+                wind_left = True
+                wind_right= False
+            if ((crab_left == False) and (crab_right == True)):
+                wind_left = False
+                wind_right =  True
+            if ((crab_left == True) and (crab_right == True)):
+                wind_left = False
+                wind_right =  True
+            
+        elif other_vertex_is_marked_poly == True: #other vertex is a marked polygon
+            other_poly_position = current_ordered_marked_polygons.index(other_polygon)
             if other_poly_position < offending_position:
                 wind_left = True
                 wind_right = False
@@ -187,13 +263,26 @@ def standardizing_braid(train, fold_here_cusp, direction):
                 wind_right = True
     
     if swing_right == True:
-        if (other_vertex not in list_of_all_the_vertices_in_inf_polygon):
-            wind_left = True
-            wind_right = False
-        else:
-            for poly in current_ordered_marked_polygons_folded:
-                if other_vertex in poly:
-                    other_poly_position = current_ordered_marked_polygons.index(poly)
+        #recall: other vertex is the vertex of added_edge that is NOT the one at the offending position
+        #so this if statement check if that other vertex is at an unmarked polygon
+        if other_vertex_is_unmarked_poly == True: #if other vertex is at an unmarked polygon 
+            for verf in component_without_far_vertex:
+                if verf in vertices_of_polygons_to_the_right:
+                    crab_right = True
+                if verf in vertices_of_polygons_to_the_left:
+                    crab_left = True
+
+            if ((crab_left == True) and (crab_right == False)):
+                wind_left = True
+                wind_right= False
+            if ((crab_left == False) and (crab_right == True)):
+                wind_left = False
+                wind_right =  True
+            if ((crab_left == True) and (crab_right == True)):
+                wind_left = True
+                wind_right =  False
+        elif other_vertex_is_marked_poly == True:
+            other_poly_position = current_ordered_marked_polygons.index(other_polygon)
             if other_poly_position < offending_position:
                 wind_left = True
                 wind_right = False
@@ -208,15 +297,6 @@ def standardizing_braid(train, fold_here_cusp, direction):
         where_to_end = None
         offending_polygon = current_ordered_marked_polygons_folded[offending_position]
         polygons_to_the_right =  current_ordered_marked_polygons_folded[offending_position+1:] 
-        graph_without_added_edge = folded_train.graph.copy()
-        graph_without_added_edge.delete_edge(added_edge)
-        connected_comps = connected_components(graph_without_added_edge)
-        component_with_far_vertex = None
-        for component in connected_comps:
-            if (far_vertex in component) == True:
-                component_with_far_vertex = component
-                break
-
         where_to_end = offending_position
         for polygon in polygons_to_the_right:
             if have_common_element(polygon,component_with_far_vertex) == True:
@@ -229,14 +309,21 @@ def standardizing_braid(train, fold_here_cusp, direction):
     if swing_left == True and wind_left == True:
         where_to_end = None
         offending_polygon = current_ordered_marked_polygons_folded[offending_position]
-        ppolygon = offending_polygon
-        for side_swapper_to_the_left in side_swappers_in_order[offending_position - 1::-1]:
-            associated_infpoly = current_ordered_marked_polygons_folded[side_swappers_in_order.index(side_swapper_to_the_left)]
-            if are_infpolys_connected(ppolygon,associated_infpoly,real_edges_folded_track) == False:
-                break
+        # ppolygon = offending_polygon
+        # for side_swapper_to_the_left in side_swappers_in_order[offending_position - 1::-1]:
+        #     associated_infpoly = current_ordered_marked_polygons_folded[side_swappers_in_order.index(side_swapper_to_the_left)]
+        #     if are_infpolys_connected(ppolygon,associated_infpoly,real_edges_folded_track) == False:
+        #         break
+        #     else:
+        #         ppolygon = associated_infpoly
+        #         where_to_end = side_swappers_in_order.index(side_swapper_to_the_left)
+
+        where_to_end = offending_position
+        for polygon in all_polygons_to_the_left_reversed:
+            if have_common_element(polygon,component_without_far_vertex) == True:
+                where_to_end = where_to_end - 1
             else:
-                ppolygon = associated_infpoly
-                where_to_end = side_swappers_in_order.index(side_swapper_to_the_left)
+                break
 
         standardizing = f"delta_[{where_to_end + 1},{offending_position + 1}]"
         
@@ -245,14 +332,14 @@ def standardizing_braid(train, fold_here_cusp, direction):
         where_to_end = None
         offending_polygon = current_ordered_marked_polygons_folded[offending_position]
         polygons_to_the_left =  current_ordered_marked_polygons_folded[:offending_position] 
-        graph_without_added_edge = folded_train.graph.copy()
-        graph_without_added_edge.delete_edge(added_edge)
-        connected_comp = connected_components(graph_without_added_edge)
-        component_with_far_vertex = None
-        for component in connected_comp:
-            if (far_vertex in component) == True:
-                component_with_far_vertex = component
-                break
+        # graph_without_added_edge = folded_train.graph.copy()
+        # graph_without_added_edge.delete_edge(added_edge)
+        # connected_comp = connected_components(graph_without_added_edge)
+        # component_with_far_vertex = None
+        # for component in connected_comp:
+        #     if (far_vertex in component) == True:
+        #         component_with_far_vertex = component
+        #         break
         
         polygons_to_the_left_reversed = polygons_to_the_left[::-1]
         where_to_end = offending_position
@@ -269,13 +356,27 @@ def standardizing_braid(train, fold_here_cusp, direction):
         where_to_end = None
         offending_polygon = current_ordered_marked_polygons_folded[offending_position]
         ppolygon = offending_polygon
-        for side_swapper_to_the_right in side_swappers_in_order[offending_position+1:]:
-            associated_infpoly = current_ordered_marked_polygons_folded[side_swappers_in_order.index(side_swapper_to_the_right)]
-            if are_infpolys_connected(ppolygon,associated_infpoly,real_edges_folded_track) == False:
-                break
+
+        # if added_edge[0] in offending_polygon:
+        #     starting_vert_right = added_edge[1]
+        # else:
+        #     starting_vert_right = added_edge[0]
+        # for k in current_ordered_marked_polygons_folded:
+        #     if starting_vert_right in k:
+        #         starting_position_right = current_ordered_marked_polygons_folded.index(k)
+        # for side_swapper_to_the_right in side_swappers_in_order[offending_position+1:]:
+        #     associated_infpoly = current_ordered_marked_polygons_folded[side_swappers_in_order.index(side_swapper_to_the_right)]
+        #     if are_infpolys_connected(ppolygon,associated_infpoly,real_edges_folded_track) == False:
+        #         break
+        #     else:
+        #         ppolygon = associated_infpoly
+        #         where_to_end = side_swappers_in_order.index(side_swapper_to_the_right)
+        where_to_end = offending_position
+        for polygon in all_polygons_to_the_right:
+            if have_common_element(polygon,component_without_far_vertex) == True:
+                where_to_end = where_to_end + 1
             else:
-                ppolygon = associated_infpoly
-                where_to_end = side_swappers_in_order.index(side_swapper_to_the_right)
+                break
 
         standardizing = f"delta^(-1)_[{offending_position + 1},{where_to_end + 1}]"
 
@@ -305,6 +406,7 @@ def is_edge_among_paths(all_paths, edge): #all_paths is a list of paths, each pa
     return False
 
 
+#tells you if two polygons are connected by a real edge or not
 def are_infpolys_connected(inf1,inf2, realedges):
     for real in realedges:
         if real[0] in inf1 and real[1] in inf2:
