@@ -151,79 +151,81 @@ current_train_track_index = 0
 
 n = len(T.side_swapping_edges)
 
-while we_added_new_traintracks == True:
-    print("we added new tracks")
+# while we_added_new_traintracks == True:
+while current_train_track_index < len(list_of_tracks):
+    # print("we added new tracks")
     we_added_new_traintracks = False  # Set to False initially, will be set to True if anything new is appended
-    for j in list_of_tracks[current_train_track_index:]:
-        index_of_cusp = 0
-        for i in cusp_dictionary[list_of_tracks.index(j)]:
-            # cusp_index = cusp_dictionary[list_of_tracks.index(j)].index(i)
-            print(f'i is {i} and j is {list_of_tracks.index(j)}')
-            # print(f'we_added_new_traintracks is {we_added_new_traintracks}')
-            ROL_legit = True
-            LOR_legit = True
-            T_ROL = j.deepcopy()
-            result_of_ROL = T_ROL.fold(T_ROL.cusps[index_of_cusp], 0)
-            if type(result_of_ROL) == tuple:
-                ROL_legit = False
-            T_LOR = j.deepcopy()
-            result_of_LOR = T_LOR.fold(T_LOR.cusps[index_of_cusp], 1)
-            if type(result_of_LOR) == tuple:
-                LOR_legit = False
+    j = list_of_tracks[current_train_track_index]
+    # for j in list_of_tracks[current_train_track_index:]:
+    index_of_cusp = 0
+    for i in cusp_dictionary[list_of_tracks.index(j)]:
+        # cusp_index = cusp_dictionary[list_of_tracks.index(j)].index(i)
+        print(f'i is {i} and j is {list_of_tracks.index(j)}')
+        # print(f'we_added_new_traintracks is {we_added_new_traintracks}')
+        ROL_legit = True
+        LOR_legit = True
+        T_ROL = j.deepcopy()
+        result_of_ROL = T_ROL.fold(T_ROL.cusps[index_of_cusp], 0)
+        if type(result_of_ROL) == tuple:
+            ROL_legit = False
+        T_LOR = j.deepcopy()
+        result_of_LOR = T_LOR.fold(T_LOR.cusps[index_of_cusp], 1)
+        if type(result_of_LOR) == tuple:
+            LOR_legit = False
 
-            if ROL_legit == True:
-                print("checking if folded ROL is in the list")
-                if is_traintrack_in_list(T_ROL, list_of_tracks)[0] == False: #if folded T_ROL is NOT in list
-                    print("folded ROL is NOT in the list")
-                    added_traintrack_index = len(list_of_tracks)
-                    list_of_tracks.append(T_ROL)
-                    we_added_new_traintracks = True  # Set to True since a new track is added
-                    # print(f"original traintrack edges with label is {T_ROL.graph.edges()}")
-                    matrix = give_edge_label_non_isomorphic_after_folding(j,T_ROL,i, 0)
-                    AutomatonGraph.add_vertices([added_traintrack_index])
-                    AutomatonGraph.add_edge((list_of_tracks.index(j),added_traintrack_index,{"standardizing braid": standardizing_braid(j,i,0), "transition matrix":matrix}))
-                    T_ROL.side_swapping_edges = convert_delta_to_perm(standardizing_braid(j,i,0),n).action(T_ROL.side_swapping_edges)
+        if ROL_legit == True:
+            print("checking if folded ROL is in the list")
+            if is_traintrack_in_list(T_ROL, list_of_tracks)[0] == False: #if folded T_ROL is NOT in list
+                print("folded ROL is NOT in the list")
+                added_traintrack_index = len(list_of_tracks)
+                list_of_tracks.append(T_ROL)
+                we_added_new_traintracks = True  # Set to True since a new track is added
+                # print(f"original traintrack edges with label is {T_ROL.graph.edges()}")
+                matrix = give_edge_label_non_isomorphic_after_folding(j,T_ROL,i, 0)
+                AutomatonGraph.add_vertices([added_traintrack_index])
+                AutomatonGraph.add_edge((list_of_tracks.index(j),added_traintrack_index,{"standardizing braid": standardizing_braid(j,i,0), "transition matrix":matrix}))
+                T_ROL.side_swapping_edges = convert_delta_to_perm(standardizing_braid(j,i,0),n).action(T_ROL.side_swapping_edges)
 
-                    cusp_dictionary[added_traintrack_index] = T_ROL.cusps
-                    AutomatonDict[added_traintrack_index] = T_ROL
-                    
-                else:
-                    print("folded ROL is in the list")
-                    existing_traintrack_index = is_traintrack_in_list(T_ROL, list_of_tracks)[1]
-                    # AutomatonGraph.add_vertices([existing_traintrack_index,existing_traintrack_index])
-                    give_label_after_folding(j,T_ROL)
-                    AutomatonGraph.add_edge((list_of_tracks.index(j),existing_traintrack_index, {"standardizing braid":standardizing_braid(j,i,0), "transition matrix": transitionmatrix_folding(T_ROL,list_of_tracks[existing_traintrack_index],i,0,j)[1]}))
+                cusp_dictionary[added_traintrack_index] = T_ROL.cusps
+                AutomatonDict[added_traintrack_index] = T_ROL
+                
+            else:
+                print("folded ROL is in the list")
+                existing_traintrack_index = is_traintrack_in_list(T_ROL, list_of_tracks)[1]
+                # AutomatonGraph.add_vertices([existing_traintrack_index,existing_traintrack_index])
+                give_label_after_folding(j,T_ROL)
+                AutomatonGraph.add_edge((list_of_tracks.index(j),existing_traintrack_index, {"standardizing braid":standardizing_braid(j,i,0), "transition matrix": transitionmatrix_folding(T_ROL,list_of_tracks[existing_traintrack_index],i,0,j)[1]}))
 
-            if LOR_legit == True:
-                print("checking if folded LOR is in the list")
-                if is_traintrack_in_list(T_LOR, list_of_tracks)[0] == False:# if folded T_LOR is NOT in list
-                    print("folded LOR is NOT in the list")
-                    added_traintrack_index = len(list_of_tracks)
-                    list_of_tracks.append(T_LOR)
-                    we_added_new_traintracks = True  # Set to True since a new track is added
-                    # print(f"original traintrack edges with label is {T_LOR.graph.edges()}")
-                    maz = give_edge_label_non_isomorphic_after_folding(j,T_LOR,i, 1)
-                    AutomatonGraph.add_vertices([added_traintrack_index])
-                    AutomatonGraph.add_edge((list_of_tracks.index(j),added_traintrack_index,{"standardizing braid":standardizing_braid(j,i,1), "transition matrix": maz}))
-                    T_LOR.side_swapping_edges = convert_delta_to_perm(standardizing_braid(j,i,1),n).action(T_LOR.side_swapping_edges)
+        if LOR_legit == True:
+            print("checking if folded LOR is in the list")
+            if is_traintrack_in_list(T_LOR, list_of_tracks)[0] == False:# if folded T_LOR is NOT in list
+                print("folded LOR is NOT in the list")
+                added_traintrack_index = len(list_of_tracks)
+                list_of_tracks.append(T_LOR)
+                we_added_new_traintracks = True  # Set to True since a new track is added
+                # print(f"original traintrack edges with label is {T_LOR.graph.edges()}")
+                maz = give_edge_label_non_isomorphic_after_folding(j,T_LOR,i, 1)
+                AutomatonGraph.add_vertices([added_traintrack_index])
+                AutomatonGraph.add_edge((list_of_tracks.index(j),added_traintrack_index,{"standardizing braid":standardizing_braid(j,i,1), "transition matrix": maz}))
+                T_LOR.side_swapping_edges = convert_delta_to_perm(standardizing_braid(j,i,1),n).action(T_LOR.side_swapping_edges)
 
-                    cusp_dictionary[added_traintrack_index] = T_LOR.cusps
-                    AutomatonDict[added_traintrack_index] = T_LOR
-                    
-                else:
-                    print("folded LOR is in the list")
-                    # location = is_traintrack_in_list(T_LOR, list_of_tracks)[1]
-                    existing_traintrack_index = is_traintrack_in_list(T_LOR, list_of_tracks)[1]
-                    # AutomatonGraph.add_vertices([existing_traintrack_index,existing_traintrack_index])
-                    give_label_after_folding(j,T_LOR)
-                    AutomatonGraph.add_edge((list_of_tracks.index(j),existing_traintrack_index,{"standardizing braid": standardizing_braid(j,i,1),"transition matrix": transitionmatrix_folding(T_LOR,list_of_tracks[existing_traintrack_index],i,1,j)[1]}))
+                cusp_dictionary[added_traintrack_index] = T_LOR.cusps
+                AutomatonDict[added_traintrack_index] = T_LOR
+                
+            else:
+                print("folded LOR is in the list")
+                # location = is_traintrack_in_list(T_LOR, list_of_tracks)[1]
+                existing_traintrack_index = is_traintrack_in_list(T_LOR, list_of_tracks)[1]
+                # AutomatonGraph.add_vertices([existing_traintrack_index,existing_traintrack_index])
+                give_label_after_folding(j,T_LOR)
+                AutomatonGraph.add_edge((list_of_tracks.index(j),existing_traintrack_index,{"standardizing braid": standardizing_braid(j,i,1),"transition matrix": transitionmatrix_folding(T_LOR,list_of_tracks[existing_traintrack_index],i,1,j)[1]}))
 
-            index_of_cusp += 1
-        # current_train_track_index += 1
+        index_of_cusp += 1
+    current_train_track_index += 1
 
     # print(f'i is {i} and j is {j}')
-    if we_added_new_traintracks == True:
-        current_train_track_index += 1
+    # if we_added_new_traintracks == True:
+    #     current_train_track_index += 1
     print(f'we_added_new_traintracks is {we_added_new_traintracks}')
 
 AutomatonGraph.set_vertices(AutomatonDict)

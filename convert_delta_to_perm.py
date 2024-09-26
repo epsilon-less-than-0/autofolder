@@ -24,8 +24,9 @@ def convert_delta_to_perm(delta, n):
         j = int(delta[12])
         k = int(delta[14])
         permz = list((range(j,k+1)))
-        permz.reverse()
-        permz = list(Permutation(tuple(permz)))
+        permz = permz[1:] + permz[:1]
+        # permz.reverse()
+        # permz = list(Permutation(tuple(permz)))
 
         for i in range(1,n+1):
             if i not in permz:
