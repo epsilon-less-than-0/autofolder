@@ -7,6 +7,12 @@ from check_dict_values_cyclic import *
 from standardizing import *
 from realedges import realedges
 from adjacent_cusps_detector import *
+import json
+from sage_to_python import sage_to_python
+from sage.all import Graph
+import json
+
+
 
 class traintrack:
     def __init__(self, graph, cusps, vertex_edges_ordering, singularity_type, infpoly):
@@ -30,6 +36,33 @@ class traintrack:
     ## is a list of vertices in counterclockwise order making up the correcponding infinitesimal polygon for that singularity. 
     ## The key for "unmarked" is similar.
 
+    def to_json(self):
+        return {
+            '__class__': 'traintrack',
+            'graph': self.graph_to_dict(),
+            'cusps': [c.to_json() for c in self.cusps],
+            'vertex_edges_ordering': sage_to_python(self.vert_orders),
+            'singularity_type': sage_to_python(self.singularity_type),
+            'infpoly': sage_to_python(self.infpoly)
+        }
+
+    def graph_to_dict(self):
+        return {
+            'vertices': sage_to_python(list(self.graph.vertices())),
+            'edges': sage_to_python(list(self.graph.edges()))
+        }
+    @classmethod
+    def from_json(cls, data):
+        graph = cls.dict_to_graph(data['graph'])
+        cusps = [cusp.from_json(c) if isinstance(c, dict) else c for c in data['cusps']]
+        vertex_edges_ordering = {int(k): v for k, v in data['vertex_edges_ordering'].items()}
+        return cls(graph, cusps, vertex_edges_ordering, data['singularity_type'], data['infpoly'])
+    
+    @staticmethod
+    def dict_to_graph(graph_dict):
+        G = Graph(graph_dict['edges'], loops=True, multiedges=True)
+        return G
+    
     def deepcopy(self):
         return copy.deepcopy(self)
 
@@ -548,9 +581,22 @@ class StandardTrainTrack(traintrack): #additional side_swapping_edges informatio
         super().__init__(graph, cusps, vertex_edges_ordering, singularity_type, infpoly)
         self.side_swapping_edges = side_swapping_edges
 
+    def to_json(self):
+        data = super().to_json()
+        data['__class__'] = 'StandardTrainTrack'
+        data['side_swapping_edges'] = sage_to_python(self.side_swapping_edges)
+        return data
+    
+    @classmethod
+    def from_json(cls, data):
+        graph = cls.dict_to_graph(data['graph'])
+        cusps = [cusp.from_json(c) if isinstance(c, dict) else c for c in data['cusps']]
+        vertex_edges_ordering = {int(k): v for k, v in data['vertex_edges_ordering'].items()}
+        side_swapping_edges = data['side_swapping_edges']
+        return cls(graph, cusps, vertex_edges_ordering, data['singularity_type'], data['infpoly'], side_swapping_edges)
 
 
-                
+
             
 
 
