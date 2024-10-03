@@ -352,8 +352,9 @@ class traintrack:
                     new_cusp = cusp(far_vertex,(new_cusp_left_edge,new_cusp_right_edge))
                     self.cusps[cusp_index] = new_cusp
 
-            
-        G.allow_multiple_edges(False)
+        if(2 not in self.singularity_type['marked']):
+            G.allow_multiple_edges(False)
+
         return self
     
 
@@ -573,6 +574,25 @@ def replace_order(old_order, replacement_vertices_map): #replaces every int in o
         new_value_list = [tuple(sorted(list((replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest))))) for src, dest in value_list]
         new_order[new_key] = new_value_list
     return new_order
+
+# def replace_order(old_order, replacement_vertices_map):
+#     new_order = {}
+#     for key, value_list in old_order.items():
+#         new_key = replacement_vertices_map.get(key, key)
+#         new_value_list = []
+#         for edge in value_list:
+#             if len(edge) == 2:
+#                 src, dest = edge
+#                 new_edge = tuple(sorted([replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest)]))
+#             elif len(edge) == 3:
+#                 src, dest, label = edge
+#                 new_edge = tuple([replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest), label])
+#             else:
+#                 print(f"Unexpected edge format: {edge}")
+#                 new_edge = edge
+#             new_value_list.append(new_edge)
+#         new_order[new_key] = new_value_list
+#     return new_order
             
             
 

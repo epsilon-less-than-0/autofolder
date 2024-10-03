@@ -1,6 +1,7 @@
 from realedges import realedges
 from sage.matrix.constructor import matrix
 from give_label_after_folding import give_label_after_folding
+from string_to_int import string_to_int
 
 
 #this gives edge labeling to a traintrack that comes from a folding, and also KNOWN THAT IT IS NOT ISOMORPHIC TO THE ORIGINAL ONE
@@ -22,12 +23,12 @@ def give_edge_label_non_isomorphic_after_folding(original_traintrack, folded_tra
         column_counter = column_counter + 1
 
     if direction == 0:
-        star_column = int(original_traintrack.graph.edge_label(fold_here_cusp.right[0],fold_here_cusp.right[1]))
-        star_row = int(original_traintrack.graph.edge_label(fold_here_cusp.left[0],fold_here_cusp.left[1]))
+        star_column = string_to_int(original_traintrack.graph.edge_label(fold_here_cusp.right[0],fold_here_cusp.right[1]))
+        star_row = string_to_int(original_traintrack.graph.edge_label(fold_here_cusp.left[0],fold_here_cusp.left[1]))
         transitionmatrix_list_of_rows[star_row - 1][star_column - 1] = transitionmatrix_list_of_rows[star_row - 1][star_column - 1]+1
     else:
-        star_column = int(original_traintrack.graph.edge_label(fold_here_cusp.left[0],fold_here_cusp.left[1]))
-        star_row = int(original_traintrack.graph.edge_label(fold_here_cusp.right[0],fold_here_cusp.right[1]))
+        star_column = string_to_int(original_traintrack.graph.edge_label(fold_here_cusp.left[0],fold_here_cusp.left[1]))
+        star_row = string_to_int(original_traintrack.graph.edge_label(fold_here_cusp.right[0],fold_here_cusp.right[1]))
         transitionmatrix_list_of_rows[star_row - 1][star_column - 1] = transitionmatrix_list_of_rows[star_row - 1][star_column - 1]+1
 
     M = matrix(transitionmatrix_list_of_rows)

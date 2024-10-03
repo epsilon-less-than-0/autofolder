@@ -4,9 +4,11 @@ def realedges(G, infpoly, labels = True): #input is graph and infinitesimal poly
     unmarked = infpoly["unmarked"]
     allpolys = marked + unmarked
     if labels == True:
-        alledges = G.edges(sort=True)
+        # alledges = G.edges(sort=True)
+        alledges = G.edges()
     else:
-        alledges = G.edges(sort=True, labels = False)
+        # alledges = G.edges(sort=True, labels = False)
+        alledges = G.edges(labels = False)
 
     for e in alledges:
         firstvertex = e[0]
@@ -19,5 +21,5 @@ def realedges(G, infpoly, labels = True): #input is graph and infinitesimal poly
                 break
         if is_real_edge:
             realedges.append(e)
-    return realedges
+    return sorted(realedges)
 

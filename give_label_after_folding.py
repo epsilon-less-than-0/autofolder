@@ -7,11 +7,17 @@ def give_label_after_folding(original_traintrack, folded_traintrack):
     only_in_folded = differences[1]
     folded_edges_real = realedges(folded_traintrack.graph,folded_traintrack.infpoly, labels = False)
     for e in folded_edges_real:
-
+        #in the special case where the underlying graph has multiple edges (i.e. we have marked bigons) the edge_label output will be a list
         if e != only_in_folded[0]:
-            folded_traintrack.graph.set_edge_label(e[0],e[1],original_traintrack.graph.edge_label(e[0],e[1]))
+            new_label = original_traintrack.graph.edge_label(e[0],e[1])
+            if type(new_label) == list:
+                new_label = new_label[0]
+            folded_traintrack.graph.set_edge_label(e[0],e[1],new_label)
         else:
-            folded_traintrack.graph.set_edge_label(e[0],e[1],original_traintrack.graph.edge_label(only_in_original[0][0],only_in_original[0][1]))
+            new_label = original_traintrack.graph.edge_label(only_in_original[0][0],only_in_original[0][1])
+            if type(new_label) == list:
+                new_label = new_label[0]
+            folded_traintrack.graph.set_edge_label(e[0],e[1],new_label)
 
 
 
