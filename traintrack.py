@@ -369,9 +369,11 @@ class traintrack:
             H_order = another_track.vert_orders
             singularity_type_marked = self.singularity_type["marked"] #singularity types of the marked singularities, as a list
             singularity_type_marked.sort() 
+            self.infpoly["marked"].sort()
             singularity_type_marked_ordered_set = list(set(singularity_type_marked)) #singularity types of the marked singularities, as an ordered list with no duplicates
             singularity_type_unmarked = self.singularity_type["unmarked"] #singularity types of the unmarked singularities, as a list
             singularity_type_unmarked.sort()
+            self.infpoly["unmarked"].sort()
             singularity_type_unmarked_ordered_set = list(set(singularity_type_unmarked))#singularity types of the unmarked singularities, as a set so no duplicates
 
 
@@ -451,6 +453,7 @@ class traintrack:
             #the following two (nested) for loops fix a choice of permutation for the marked polygons and a permutation for the unmarked polygons
             for i in list_of_all_marked_combo_perms:
                 for k in list_of_all_unmarked_combo_perms:
+                    # print(f"i is {i} and k is {k}")
                     # print("checking the marked permutation combo") 
                     # print(i)
                     # print("together with the unmarked permutation combo")
@@ -465,6 +468,7 @@ class traintrack:
                     #Now we fill in which_poly_is_sent_to_which_marked, and new_infpoly for marked polys
                     #for each j a marked singularity type,
                     for j in singularity_type_marked_ordered_set:
+                        # print(f"j is {j}")
                         number_of_polygons_of_this_type = dict_marked_count[j] #number of polygons of this type, as an int
 
                         #this for loop finds the index in infpoly["marked"] at which singularity type j polygons start, stores it in index_start
@@ -497,6 +501,7 @@ class traintrack:
                     #Now we fill in which_poly_is_sent_to_which_unmarked, and new_infpoly for unmarked polys
                     #for each n an unmarked singularity type
                     for n in singularity_type_unmarked_ordered_set:
+                        # print(f"n is {n}")
                         number_of_polygons_of_this_type_un = dict_unmarked_count[n] #number of polygons of this type
 
                         #this for loop finds the index in infpoly["unmarked"] at which singularity type n polygons start, stores it in index_start
@@ -520,8 +525,10 @@ class traintrack:
 
                     #the following fixes internal permutation combos intermark (for marked) and interunmark (for unmarked), for each polygon we want to permute the vertices
                     for intermark in list_of_all_combinations_internal_marked:
+                        # print(f"intermark is {intermark}")
                         markedpolycounter = 0
                         for q in intermark:
+                            # print(f"q is {q}")
                             original_vertices_marked = which_poly_is_sent_to_which_marked[markedpolycounter][0][1]
                             ending_vertices_marked = q.action(which_poly_is_sent_to_which_marked[markedpolycounter][1][1])
                             for b in original_vertices_marked:
@@ -567,32 +574,32 @@ def replace_elements_in_tuple(tup, replacements): #replace the entries of a tupl
     tup = new_tuple  # Assign the new tuple to the same variable name
     return tup
 
-def replace_order(old_order, replacement_vertices_map): #replaces every int in old_order, key or value, by assignment given by replacement_vertices_map
-    new_order = {}
-    for key, value_list in old_order.items():
-        new_key = replacement_vertices_map.get(key, key)
-        new_value_list = [tuple(sorted(list((replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest))))) for src, dest in value_list]
-        new_order[new_key] = new_value_list
-    return new_order
-
-# def replace_order(old_order, replacement_vertices_map):
+# def replace_order(old_order, replacement_vertices_map): #replaces every int in old_order, key or value, by assignment given by replacement_vertices_map
 #     new_order = {}
 #     for key, value_list in old_order.items():
 #         new_key = replacement_vertices_map.get(key, key)
-#         new_value_list = []
-#         for edge in value_list:
-#             if len(edge) == 2:
-#                 src, dest = edge
-#                 new_edge = tuple(sorted([replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest)]))
-#             elif len(edge) == 3:
-#                 src, dest, label = edge
-#                 new_edge = tuple([replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest), label])
-#             else:
-#                 print(f"Unexpected edge format: {edge}")
-#                 new_edge = edge
-#             new_value_list.append(new_edge)
+#         new_value_list = [tuple(sorted(list((replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest))))) for src, dest in value_list]
 #         new_order[new_key] = new_value_list
 #     return new_order
+
+def replace_order(old_order, replacement_vertices_map):
+    new_order = {}
+    for key, value_list in old_order.items():
+        new_key = replacement_vertices_map.get(key, key)
+        new_value_list = []
+        for edge in value_list:
+            if len(edge) == 2:
+                src, dest = edge
+                new_edge = tuple(sorted([replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest)]))
+            elif len(edge) == 3:
+                src, dest, label = edge
+                new_edge = tuple([replacement_vertices_map.get(src, src), replacement_vertices_map.get(dest, dest), label])
+            else:
+                print(f"Unexpected edge format: {edge}")
+                new_edge = edge
+            new_value_list.append(new_edge)
+        new_order[new_key] = new_value_list
+    return new_order
             
             
 

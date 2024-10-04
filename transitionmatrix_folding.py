@@ -10,6 +10,7 @@ from standardizing import *
 from convert_delta_to_perm import convert_delta_to_perm
 from realedges import realedges
 from sage.matrix.constructor import matrix
+from string_to_int import string_to_int
 
 
 
@@ -39,9 +40,11 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
         H_order = ending_track.vert_orders
         singularity_type_marked = starting_track.singularity_type["marked"] #singularity types of the marked singularities, as a list
         singularity_type_marked.sort() 
+        starting_track.infpoly["marked"].sort()
         singularity_type_marked_ordered_set = list(set(singularity_type_marked)) #singularity types of the marked singularities, as an ordered list with no duplicates
         singularity_type_unmarked = starting_track.singularity_type["unmarked"] #singularity types of the unmarked singularities, as a list
         singularity_type_unmarked.sort()
+        starting_track.infpoly["unmarked"].sort()
         singularity_type_unmarked_ordered_set = list(set(singularity_type_unmarked))#singularity types of the unmarked singularities, as a set so no duplicates
 
 
@@ -232,7 +235,7 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
 
                             for e in ListofRealEdges_starting:
                                 e_is_send_to = tuple(sorted(list((which_vertex_is_sent_to_which[e[0]],which_vertex_is_sent_to_which[e[1]]))))
-                                realedge_label_transition_dictionary[int(e[2])] = int(ending_track.graph.edge_label(e_is_send_to[0],e_is_send_to[1]))
+                                realedge_label_transition_dictionary[string_to_int(e[2])] = string_to_int(ending_track.graph.edge_label(e_is_send_to[0],e_is_send_to[1]))
 
                             realedge_label_transition_dictionary = dict(sorted(realedge_label_transition_dictionary.items()))
                             transitionmatrix_list_of_rows = create_zero_matrix(len(ListofRealEdges_starting))
@@ -241,15 +244,15 @@ def transitionmatrix_folding(starting_track, ending_track, fold_here_cusp, direc
                                 transitionmatrix_list_of_rows[row - 1][column - 1] = 1
                             
                             if direction == 0: #if it's ROL
-                                column_to_add = int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.right)))[0],tuple(sorted(list(fold_here_cusp.right)))[1]))
+                                column_to_add = string_to_int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.right)))[0],tuple(sorted(list(fold_here_cusp.right)))[1]))
                                 print(f"column to add is {column_to_add}")
-                                row_to_add_pre_permute = int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.left)))[0],tuple(sorted(list(fold_here_cusp.left)))[1]))
+                                row_to_add_pre_permute = string_to_int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.left)))[0],tuple(sorted(list(fold_here_cusp.left)))[1]))
                                 print(f"row to add pre permute is {row_to_add_pre_permute}")
                                 row_to_add = realedge_label_transition_dictionary[row_to_add_pre_permute]
                                 print(f"row to add is {row_to_add}")
                             else: #if it's LOR
-                                column_to_add = int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.left)))[0],tuple(sorted(list(fold_here_cusp.left)))[1]))
-                                row_to_add_pre_permute = int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.right)))[0],tuple(sorted(list(fold_here_cusp.right)))[1]))
+                                column_to_add = string_to_int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.left)))[0],tuple(sorted(list(fold_here_cusp.left)))[1]))
+                                row_to_add_pre_permute = string_to_int(pre_folded_track.graph.edge_label(tuple(sorted(list(fold_here_cusp.right)))[0],tuple(sorted(list(fold_here_cusp.right)))[1]))
                                 row_to_add = realedge_label_transition_dictionary[row_to_add_pre_permute]
 
                             transitionmatrix_list_of_rows[row_to_add - 1][column_to_add - 1] = transitionmatrix_list_of_rows[row_to_add - 1][column_to_add - 1] + 1
