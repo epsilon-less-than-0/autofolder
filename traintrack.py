@@ -55,7 +55,7 @@ class traintrack:
     def from_json(cls, data):
         graph = cls.dict_to_graph(data['graph'])
         cusps = [cusp.from_json(c) if isinstance(c, dict) else c for c in data['cusps']]
-        vertex_edges_ordering = {int(k): v for k, v in data['vertex_edges_ordering'].items()}
+        vertex_edges_ordering = {int(k): lists_to_tuples(v) for k, v in data['vertex_edges_ordering'].items()}
         return cls(graph, cusps, vertex_edges_ordering, data['singularity_type'], data['infpoly'])
     
     @staticmethod
@@ -618,9 +618,14 @@ class StandardTrainTrack(traintrack): #additional side_swapping_edges informatio
     def from_json(cls, data):
         graph = cls.dict_to_graph(data['graph'])
         cusps = [cusp.from_json(c) if isinstance(c, dict) else c for c in data['cusps']]
-        vertex_edges_ordering = {int(k): v for k, v in data['vertex_edges_ordering'].items()}
-        side_swapping_edges = data['side_swapping_edges']
+        vertex_edges_ordering = {int(k): lists_to_tuples(v) for k, v in data['vertex_edges_ordering'].items()}
+        side_swapping_edges = {tuple(k) for k in data['side_swapping_edges']}
         return cls(graph, cusps, vertex_edges_ordering, data['singularity_type'], data['infpoly'], side_swapping_edges)
+    
+
+
+def lists_to_tuples(list_of_lists):
+    return [tuple(inner_list) for inner_list in list_of_lists]
 
 
 
