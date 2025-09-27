@@ -13,7 +13,7 @@ This package provides tools for working with train tracks on the disk with n mar
 
 ## Features
 
-- **Interactive Train Track Construction**: Input singularity types, polygons, and graph structure through prompts
+- **Train Track Construction**: Create a train track object by inputing number of marked points, unmarked points, singularity types, infinitesimal polygons, and graph structure. This can be done directly or by calling the train track constructor function.
 - **Automated Elementary Folding**: Fold a train track at a cusp in either directions
 - **Automaton Generation**: Build the automaton as a directed graph, with edges decorated by standardizing braids
 - **Isomorphism Detection**: Identify when two train tracks are ambient isotopic
