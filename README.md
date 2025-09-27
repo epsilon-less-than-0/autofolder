@@ -6,17 +6,17 @@ This is a SageMath package for generating the folding automaton of a given strat
 
 This package provides tools for working with train tracks on the disk with n marked points. The main functionality allows users to:
 
-- Construct train tracks from user-specified geometric data
-- Perform cusp folding operations (left-over-right and right-over-left)
-- Build the folding automata by systematically folding all cusps
+- Construct and encode train tracks from user-specified geometric data
+- Perform elementary folding operations at a cust (left-over-right or right-over-left)
+- Build the associated folding automata, including standardizing braids, by systematically folding all cusps
 - Analyze the resulting automaton structure
 
 ## Features
 
 - **Interactive Train Track Construction**: Input singularity types, polygons, and graph structure through prompts
-- **Automated Cusp Folding**: Systematically fold all cusps in both directions
-- **Automaton Generation**: Build a directed graph representing all possible folding sequences
-- **Isomorphism Detection**: Identify when folded train tracks are equivalent
+- **Automated Elementary Folding**: Fold a train track at a cusp in either directions
+- **Automaton Generation**: Build the automaton as a directed graph, with edges decorated by standardizing braids
+- **Isomorphism Detection**: Identify when two train tracks are ambient isotopic
 - **Transition Matrices**: Track how edges transform under folding operations
 - **Standardization**: Maintain canonical forms using braid operations
 
