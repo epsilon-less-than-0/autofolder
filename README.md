@@ -72,7 +72,19 @@ The program will prompt you for the following information:
 ### Example Input Session
 
 ```
-Enter the number of marked points: 4
+Suppose we would like to input the following train track on the disk with 4 marked points:
+<img width="1196" height="1000" alt="image" src="https://github.com/user-attachments/assets/05b37217-cac9-4088-a224-337effe717f3" />
+
+This is a train track with four one-pronged singularities at the five marked points, represented by the four monogons surrounding the marked points; and one four-pronged unmarked singularity, represented by the four-gon. There is one cusp marked c on the diagram.
+
+We imagine the underlying graph of this train track to look like this:
+
+
+
+
+
+We would enter the following responses to the prompts of the script:
+Enter the number of marked points: 5
 List the singularity types of the marked points as a list, from left to right: [1,1,1,1]
 Starting from left to right, consider the 1th marked point, which has the singularity type 1. 
 In counterclockwise order, enter the vertices that enclose this marked point as a list: [0]
