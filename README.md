@@ -71,7 +71,7 @@ The program will prompt you for the following information:
 
 ### Example Input Session
 
-```
+
 Suppose we would like to input the following train track on the disk with 4 marked points:
 <img width="1196" height="1000" alt="image" src="https://github.com/user-attachments/assets/05b37217-cac9-4088-a224-337effe717f3" />
 
