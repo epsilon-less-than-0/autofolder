@@ -90,7 +90,7 @@ Enter the side-swapping edge for this marked polygon as a tuple: (0,0)
 ...
 ```
 
-### Output
+<!-- ### Output
 
 The program generates:
 - `AutomatonDict`: Dictionary mapping indices to train track objects
@@ -209,4 +209,5 @@ For questions or issues:
 
 ## Acknowledgments
 
-Based on train track theory and surface topology research. Thanks to contributors and the SageMath community.
+Based on train track theory and surface topology research. Thanks to contributors and the SageMath community.-->
+
