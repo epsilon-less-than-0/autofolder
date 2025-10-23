@@ -122,7 +122,7 @@ Represents a cusp between two real edges:
 - `deepcopy()`: Create independent copy
 
 ## File Structure
-
+```
 ```
 ├── automaton.py              # Main executable script
 ├── traintrack.py            # Core train track classes
@@ -136,7 +136,7 @@ Represents a cusp between two real edges:
 ├── is_jointless.py         # Jointless track detection
 └── json_encoder_decoder.py # Serialization utilities
 ```
-
+```
 ## Mathematical Background
 
 This package implements algorithms for:
@@ -159,7 +159,7 @@ with open('track.json', 'w') as f:
 with open('track.json', 'r') as f:
     track = StandardTrainTrack.from_json(json.load(f))
 ```
-
+```
 ### Analysis Tools
 - `is_jointless(track)`: Check if track has jointless monogons
 - `adjacent_cusps_detector(cusps)`: Find adjacent cusp pairs
@@ -170,7 +170,7 @@ with open('track.json', 'r') as f:
 - **SageMath** (required): For graphs, matrices, and permutations
 - **Python 3.8+**: Standard library modules (copy, itertools, json)
 ```
-
+```
 ## Examples
 
 ### Simple Example
