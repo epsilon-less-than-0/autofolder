@@ -88,13 +88,5 @@ Starting from left to right, consider the 1th marked point, which has the singul
 In counterclockwise order, enter the vertices that enclose this marked point as a list: [0]
 Enter the side-swapping edge for this marked polygon as a tuple: (0,0)
 ...
-```
 
-<!-- ### Output
-The program generates:
-- `AutomatonDict`: Dictionary mapping indices to train track objects
-...
-...
-## Acknowledgments
-Based on train track theory and surface topology research. Thanks to contributors and the SageMath community. -->
 
