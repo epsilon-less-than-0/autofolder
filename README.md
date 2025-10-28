@@ -29,7 +29,7 @@ This package provides tools for working with train tracks on the disk with n mar
 2. While in the directory, run the following:
    
 ```python
-sage automaton.sage
+sage automaton.py
 ```
 The script will promt you to enter in data for your train track.
 
