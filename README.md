@@ -11,6 +11,7 @@ This package provides tools for working with train tracks on the disk with n mar
 - Build the associated folding automata, including standardizing braids, by systematically folding all cusps
 - Analyze the resulting automaton structure
 
+
 ## Features
 
 - **Train Track Construction**: Create a train track object by inputing number of marked points, unmarked points, singularity types, infinitesimal polygons, and graph structure. This can be done directly or by calling the train track constructor function.
@@ -22,41 +23,27 @@ This package provides tools for working with train tracks on the disk with n mar
 
 ## Installation
 
-### Option 1: Local Installation (Recommended)
 
+### If you just want to generate the folding automaton
 1. Clone or download this repository
-2. Place the package directory in your working directory or add it to your Python path
-3. In SageMath, import the module:
-
+2. While in the directory, run the following:
+   
 ```python
-# If in the same directory
-import sys
-sys.path.append('.')
-from automaton import *
-
-# Or if installed as a package
-from train_track_autofolder.automaton import *
+sage automaton.sage
 ```
+The script will promt you to enter in data for your train track.
 
-### Option 2: Direct Import
-
-Place all `.py` files in your SageMath working directory and import:
-
+### If you want to use this as a SageMath package to use all features (In Development!)
+1. Clone or download this repository
+2. Open Sage in terminal
+3. Execute the following:
+4. 
 ```python
-load('automaton.py')
+sage:  
 ```
-
-## Usage
-
-### Basic Usage
-
-The main entry point is the `automaton.py` script. When run, it will interactively prompt you to construct a train track:
-
-```python
-sage: exec(open('automaton.py').read())
-```
-
-### Input Requirements
+## Example Input Session
+### If you just want to generate the folding automaton
+#### Input Requirements
 
 The program will prompt you for the following information:
 
@@ -68,9 +55,6 @@ The program will prompt you for the following information:
 6. **Boundary Information**: Singularity type of the boundary
 7. **Graph Structure**: Underlying graph with vertex connections
 8. **Cusp Information**: Cusps between real edges only
-
-### Example Input Session
-
 
 Suppose we would like to input the following train track on the disk with 4 marked points:
 <img width="1196" height="1000" alt="image" src="https://github.com/user-attachments/assets/05b37217-cac9-4088-a224-337effe717f3" />
