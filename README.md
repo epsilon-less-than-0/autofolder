@@ -63,7 +63,8 @@ Suppose we would like to input the following train track on the disk with 4 mark
 This is a train track with four one-pronged singularities at the five marked points, represented by the four monogons surrounding the marked points; and one four-pronged unmarked singularity, represented by the four-gon. There is one cusp marked c on the diagram.
 
 We imagine the underlying graph of this train track to look like this:
-<img width="500" height="397" alt="image" src="https://github.com/user-attachments/assets/0680a095-ad3e-4a9c-bd13-a41846e2db48" />
+<img width="500" height="397" alt="image" src="https://github.com/user-attachments/assets/4c1e0e44-be81-42b5-97f8-b96481ff98c7" />
+
 
 
 
