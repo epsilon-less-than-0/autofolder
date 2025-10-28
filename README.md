@@ -57,13 +57,13 @@ The program will prompt you for the following information:
 8. **Cusp Information**: Cusps between real edges only
 
 Suppose we would like to input the following train track on the disk with 4 marked points:
-<img width="156" height="136" alt="image" src="https://github.com/user-attachments/assets/39bf43bf-430d-4ddd-9277-0b3e5a2b80c9" />
+<img width="312" height="272" alt="image" src="https://github.com/user-attachments/assets/39bf43bf-430d-4ddd-9277-0b3e5a2b80c9" />
 
 
 This is a train track with four one-pronged singularities at the five marked points, represented by the four monogons surrounding the marked points; and one four-pronged unmarked singularity, represented by the four-gon. There is one cusp marked c on the diagram.
 
 We imagine the underlying graph of this train track to look like this:
-<img width="1260" height="999" alt="image" src="https://github.com/user-attachments/assets/0680a095-ad3e-4a9c-bd13-a41846e2db48" />
+<img width="500" height="397" alt="image" src="https://github.com/user-attachments/assets/0680a095-ad3e-4a9c-bd13-a41846e2db48" />
 
 
 
