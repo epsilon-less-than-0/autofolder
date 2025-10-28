@@ -67,13 +67,43 @@ We imagine the underlying graph of this train track to look like this:
 
 
 
-
-We would enter the following responses to the prompts of the script:
-Enter the number of marked points: 5
-List the singularity types of the marked points as a list, from left to right: [1,1,1,1]
-Starting from left to right, consider the 1th marked point, which has the singularity type 1. 
-In counterclockwise order, enter the vertices that enclose this marked point as a list: [0]
+```
+Enter the number of marked points: 4
+List the singularity types of the marked points as a list, from left to right: [1,1,1,1]     
+Starting from left to right, consider the 1th marked point, which has the singularity type 1. In counterclockwise order, enter the vertices that enclose this marked point as a list: [0]
 Enter the side-swapping edge for this marked polygon as a tuple: (0,0)
+Starting from left to right, consider the 2th marked point, which has the singularity type 1. In counterclockwise order, enter the vertices that enclose this marked point as a list: [1]
+Enter the side-swapping edge for this marked polygon as a tuple: (1,1)
+Starting from left to right, consider the 3th marked point, which has the singularity type 1. In counterclockwise order, enter the vertices that enclose this marked point as a list: [2]
+Enter the side-swapping edge for this marked polygon as a tuple: (2,2)
+Starting from left to right, consider the 4th marked point, which has the singularity type 1. In counterclockwise order, enter the vertices that enclose this marked point as a list: [3]
+Enter the side-swapping edge for this marked polygon as a tuple: (3,3)
+Enter the number of unmarked singularities: 1
+List the singularity types of the unmarked points as a list: [3]
+Consider the 1th unmarked singularity, which has the singularity type 3. In counterclockwise order, enter the vertices that enclose this unmarked singularity as a list: [4,5,6]
+Enter the singularity type of the boundary (this should be a single integer): 1
+Enter the number of vertices of the underlying graph: 7
+Consider the vertex numbered 0. How many vertices are connected to this vertex (counting itself if it is a closed vertex)? 2
+List the vertices connected to this vertex as a list, in counterclockwise order: [0,5]
+Consider the vertex numbered 1. How many vertices are connected to this vertex (counting itself if it is a closed vertex)? 2
+List the vertices connected to this vertex as a list, in counterclockwise order: [1,4]
+Consider the vertex numbered 2. How many vertices are connected to this vertex (counting itself if it is a closed vertex)? 2
+List the vertices connected to this vertex as a list, in counterclockwise order: [2,6]
+Consider the vertex numbered 3. How many vertices are connected to this vertex (counting itself if it is a closed vertex)? 2
+List the vertices connected to this vertex as a list, in counterclockwise order: [3,5]
+Consider the vertex numbered 4. How many vertices are connected to this vertex (counting itself if it is a closed vertex)? 3
+List the vertices connected to this vertex as a list, in counterclockwise order: [1,5,6]
+Consider the vertex numbered 5. How many vertices are connected to this vertex (counting itself if it is a closed vertex)? 4
+List the vertices connected to this vertex as a list, in counterclockwise order: [4,0,3,6]
+Consider the vertex numbered 6. How many vertices are connected to this vertex (counting itself if it is a closed vertex)? 3
+List the vertices connected to this vertex as a list, in counterclockwise order: [2,4,5]
+Dictionary defining the underlyging graph is: {0: [0, 5], 1: [1, 4], 2: [2, 6], 3: [3, 5], 4: [1, 5, 6], 5: [4, 0, 3, 6], 6: [2, 4, 5]}
+Enter the number of cusps, only cusps between real edges: 1
+Enter a vertex of a cusp: 5
+Enter the left edge: (5,3)    
+Enter the right edge: (5,0)
+
+```
 ...
 
 
